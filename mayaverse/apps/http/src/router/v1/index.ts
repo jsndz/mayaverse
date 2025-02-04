@@ -91,14 +91,27 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-router.post("/element", (req, res) => {
+router.get("/element", async (req, res) => {
+  const elements = await client.element.findMany();
   res.json({
-    message: "Hello",
+    elements: elements.map((element) => ({
+      id: element.id,
+      imageUrl: element.imageUrl,
+      static: element.static,
+      width: element.width,
+      height: element.height,
+    })),
   });
 });
-router.post("/avatars", (req, res) => {
+router.get("/avatars", async (req, res) => {
+  const avatars = await client.avatar.findMany();
+
   res.json({
-    message: "Hello",
+    avatars: avatars.map((avatar) => ({
+      id: avatar.id,
+      imageUrl: avatar.imageUrl,
+      name: avatar.name,
+    })),
   });
 });
 
