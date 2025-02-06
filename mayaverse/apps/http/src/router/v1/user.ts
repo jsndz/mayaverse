@@ -14,21 +14,29 @@ router.post("/metadata", UserMiddleware, async (req, res) => {
     return;
   }
 
-  const metadata = await client.user.update({
-    where: {
-      id: req.userId,
-    },
-    data: {
-      avatarId: parsedData.data.avatar,
-    },
-  });
-  res.status(200).json({
-    message: "Metadata updated",
-  });
+  try {
+    const metadata = await client.user.update({
+      where: {
+        id: req.userId,
+      },
+      data: {
+        avatarId: parsedData.data.avatarId,
+      },
+    });
+    res.status(200).json({
+      message: "Metadata updated",
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Internal Server Error",
+    });
+  }
 });
 router.get("/metadata/bulk", async (req, res) => {
-  const userIds = (req.query.userIds ?? "[]") as string;
-  const ids = userIds.slice(1, userIds?.length - 2).split(",");
+  const userIds = (req.query.ids ?? "[]") as string;
+
+  const ids = userIds.slice(1, userIds?.length - 1).split(",");
+
   const metadata = await client.user.findMany({
     where: {
       id: {
@@ -42,10 +50,10 @@ router.get("/metadata/bulk", async (req, res) => {
   });
 
   res.status(200).json({
-    avatars: metadata.map((m) => {
-      userId: m.id;
-      avatarId: m.avatar?.imageUrl;
-    }),
+    avatars: metadata.map((m) => ({
+      userId: m.id,
+      avatarId: m.avatar?.imageUrl,
+    })),
   });
 });
 

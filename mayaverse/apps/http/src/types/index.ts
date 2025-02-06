@@ -12,7 +12,7 @@ export const signInSchema = z.object({
 });
 
 export const updateMetaDataSchema = z.object({
-  avatar: z.string(),
+  avatarId: z.string(),
 });
 
 export const createSpaceSchema = z.object({

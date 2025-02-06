@@ -9,9 +9,10 @@ export const UserMiddleware = async (
 ) => {
   const header = req.headers["authorization"];
   const token = header?.split(" ")[1];
+
   if (!token) {
     res.status(403).json({
-      message: "Unautherized",
+      message: "Unauthorized",
     });
     return;
   }
