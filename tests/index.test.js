@@ -41,9 +41,8 @@ const axios = {
 const SERVER_URL = "http://localhost:3000";
 const WS_URL = "ws://localhost:3001";
 
-describe.skip("Authentication", () => {
+describe("Authentication", () => {
   test("Signup succeeds ", async () => {
-    jest.setTimeout(10000);
     const username = `3bob-${Math.random()}`;
     const password = "qwerty123";
 
@@ -60,7 +59,6 @@ describe.skip("Authentication", () => {
     expect(response.status).toBe(200);
   });
   test("User is able to signup only once", async () => {
-    jest.setTimeout(10000);
     const username = `1bob${Math.random()}`;
     const password = "qwerty123";
     const res = await axios.post(`${SERVER_URL}/api/v1/signup`, {
@@ -77,7 +75,6 @@ describe.skip("Authentication", () => {
     expect(newRes.status).toBe(400);
   });
   test("Signup request fails if the username is empty", async () => {
-    jest.setTimeout(10000);
     const username = `2bob${Math.random()}`;
     const password = "qwerty123";
     const response = await axios.post(`${SERVER_URL}/api/v1/signup`, {
@@ -86,7 +83,6 @@ describe.skip("Authentication", () => {
     expect(response.status).toBe(400);
   });
   test("Signin succeeds if the username and password are correct", async () => {
-    jest.setTimeout(10000);
     const username = `3bob-${Math.random()}`;
     const password = "qwerty123";
     await axios.post(`${SERVER_URL}/api/v1/signup`, {
@@ -102,7 +98,6 @@ describe.skip("Authentication", () => {
     expect(response.data.token).toBeDefined();
   });
   test("Signin fails if the username and password are incorrect", async () => {
-    jest.setTimeout(10000);
     const username = `4bob${Math.random()}`;
     const password = "qwerty123";
     await axios.post(`${SERVER_URL}/api/v1/signup`, {
@@ -118,7 +113,7 @@ describe.skip("Authentication", () => {
   });
 });
 
-describe.skip("User metadata ", () => {
+describe("User metadata ", () => {
   let token = "";
   let avatarId = "";
   beforeAll(async () => {
@@ -174,7 +169,7 @@ describe.skip("User metadata ", () => {
   });
 });
 
-describe.skip("user avatar information", () => {
+describe("user avatar information", () => {
   let token = "";
   let avatarId = "";
   let userId = "";
@@ -218,7 +213,7 @@ describe.skip("user avatar information", () => {
     expect(currentAvatar).toBeDefined();
   });
 });
-describe.skip("space information", () => {
+describe("space information", () => {
   let mapId;
   let element1Id;
   let element2Id;
@@ -466,7 +461,6 @@ describe("Arena", () => {
   let adminId;
   let spaceId;
   beforeAll(async () => {
-    jest.setTimeout(15000);
     const username = "Bob" + Math.random();
     const password = "qwerty123";
     const type = "admin";
@@ -574,72 +568,64 @@ describe("Arena", () => {
       }
     );
     spaceId = spaceRes.data.spaceId;
-    console.log(spaceRes.data);
-  }, 15000);
+  });
 
-  // test("incorrect space id returns 400", async () => {
-  //   const res = await axios.get(`${SERVER_URL}/api/v1/space/qwerty123`, {
-  //     headers: {
-  //       authorization: `Bearer ${userToken}`,
-  //     },
-  //   });
-  //   expect(res.status).toBe(400);
-  // });
-  // test("correct space id returns all elements", async () => {
-  //   const res = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
-  //     headers: {
-  //       authorization: `Bearer ${userToken}`,
-  //     },
-  //   });
-  //   console.log(res.data);
+  test("incorrect space id returns 400", async () => {
+    const res = await axios.get(`${SERVER_URL}/api/v1/space/qwerty123`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(res.status).toBe(400);
+  });
+  test("correct space id returns all elements", async () => {
+    const res = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
 
-  //   expect(res.data.dimension).toBe("100x200");
-  //   expect(res.data.elements.length).toBe(2);
-  // });
-  // test("delete elements", async () => {
-  //   const res = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
-  //     headers: {
-  //       authorization: `Bearer ${userToken}`,
-  //     },
-  //   });
-  //   expect(res.status).toBe(200);
-  //   console.log("res frpm delete elements", res.data);
+    expect(res.data.dimension).toBe("100x200");
+    expect(res.data.elements.length).toBe(2);
+  });
+  test("delete elements", async () => {
+    const res = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(res.status).toBe(200);
 
-  //   const deleteRes = await axios.delete(`${SERVER_URL}/api/v1/space/element`, {
-  //     data: {
-  //       id: res.data.elements[0].id,
-  //     },
+    const deleteRes = await axios.delete(`${SERVER_URL}/api/v1/space/element`, {
+      data: {
+        id: res.data.elements[0].id,
+      },
 
-  //     headers: {
-  //       authorization: `Bearer ${userToken}`,
-  //     },
-  //   });
-  //   console.log("delres from delete elements", deleteRes.data);
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
 
-  //   expect(deleteRes.status).toBe(200);
+    expect(deleteRes.status).toBe(200);
 
-  //   const newRes = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
-  //     headers: {
-  //       authorization: `Bearer ${userToken}`,
-  //     },
-  //   });
-  //   expect(newRes.status).toBe(200);
+    const newRes = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(newRes.status).toBe(200);
 
-  //   console.log(newRes.data);
+    expect(newRes.data.elements.length).toBe(1);
+  });
 
-  //   expect(newRes.data.elements.length).toBe(1);
-  // });
-
-  test("add elements inside space ", async () => {
-    jest.setTimeout(15000);
-
+  test("Adding an element works as expected", async () => {
     const res = await axios.post(
       `${SERVER_URL}/api/v1/space/element`,
       {
-        spaceId,
         elementId: element1Id,
-        x: 1,
-        y: 1,
+        spaceId: spaceId,
+        x: 50,
+        y: 20,
       },
       {
         headers: {
@@ -647,20 +633,27 @@ describe("Arena", () => {
         },
       }
     );
-    const newRes = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
-      headers: {
-        authorization: `Bearer ${userToken}`,
-      },
-    });
-    expect(res.data.elements.length).toBe(2);
-  }, 15000);
+    expect(res.status).toBe(201);
+    console.log(res.data);
+    const newResponse = await axios.get(
+      `${SERVER_URL}/api/v1/space/${spaceId}`,
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    console.log(newResponse.data);
+
+    expect(newResponse.data.elements.length).toBe(2);
+  });
   test("add elements inside space outside dimension gives error", async () => {
     const res = await axios.post(
       `${SERVER_URL}/api/v1/space/element`,
       {
         spaceId,
         elementId: element1Id,
-        x: 10000,
+        x: 100000,
         y: 100000,
       },
       {
@@ -673,7 +666,7 @@ describe("Arena", () => {
   });
 });
 
-describe.skip("element creation", () => {
+describe("element creation", () => {
   let userToken;
   let userId;
   let adminToken;
@@ -708,12 +701,12 @@ describe.skip("element creation", () => {
       password,
     });
     expect(res.status).toBe(200);
-    userToken = userRes.body.token;
+    userToken = userRes.data.token;
   });
 
   test("user cant make to admin endpoints", async () => {
     const elementRes = await axios.post(
-      `${SERVER_URL}/api/admin/element`,
+      `${SERVER_URL}/api/v1/admin/element`,
       {
         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
         width: 1,
@@ -727,8 +720,9 @@ describe.skip("element creation", () => {
       }
     );
     const mapRes = await axios.post(
-      `${SERVER_URL}/api/admin/map`,
+      `${SERVER_URL}/api/v1/admin/map`,
       {
+        name: "test",
         thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
         dimension: "100x200",
         defaultElements: [],
@@ -752,7 +746,7 @@ describe.skip("element creation", () => {
       }
     );
     const updateElementRes = await axios.put(
-      `${SERVER_URL}/api/admin/element/${elementRes.data.id}`,
+      `${SERVER_URL}/api/v1/admin/element/${elementRes.data.id}`,
       {
         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
         width: 2,
@@ -765,15 +759,15 @@ describe.skip("element creation", () => {
         },
       }
     );
-    expect(elementRes.status).toBe(404);
-    expect(mapRes.status).toBe(404);
-    expect(avatarRes.status).toBe(404);
-    expect(updateElementRes.status).toBe(404);
+    expect(elementRes.status).toBe(403);
+    expect(mapRes.status).toBe(403);
+    expect(avatarRes.status).toBe(403);
+    expect(updateElementRes.status).toBe(403);
   });
 
   test("admin can make to admin endpoints", async () => {
     const elementRes = await axios.post(
-      `${SERVER_URL}/api/admin/element`,
+      `${SERVER_URL}/api/v1/admin/element`,
       {
         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
         width: 1,
@@ -787,8 +781,9 @@ describe.skip("element creation", () => {
       }
     );
     const mapRes = await axios.post(
-      `${SERVER_URL}/api/admin/map`,
+      `${SERVER_URL}/api/v1/admin/map`,
       {
+        name: "test",
         thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
         dimension: "100x200",
         defaultElements: [],
@@ -811,14 +806,13 @@ describe.skip("element creation", () => {
         },
       }
     );
-
     expect(elementRes.status).toBe(200);
     expect(mapRes.status).toBe(200);
     expect(avatarRes.status).toBe(200);
   });
   test("admin is able to edit an element", async () => {
     const elementRes = await axios.post(
-      `${SERVER_URL}/api/admin/element`,
+      `${SERVER_URL}/api/v1/admin/element`,
       {
         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
         width: 1,
@@ -832,7 +826,7 @@ describe.skip("element creation", () => {
       }
     );
     const updateElementRes = await axios.put(
-      `${SERVER_URL}/api/admin/element/${elementRes.data.id}`,
+      `${SERVER_URL}/api/v1/admin/element/${elementRes.data.id}`,
       {
         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
         width: 2,
@@ -923,6 +917,7 @@ describe.skip("element creation", () => {
 //     const mapRes = await axios.post(
 //       `${SERVER_URL}/api/admin/map`,
 //       {
+//  name: "test",
 //         thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
 //         dimension: "100x200",
 //         defaultElements: [
