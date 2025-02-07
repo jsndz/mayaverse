@@ -118,710 +118,713 @@ describe("Authentication", () => {
   });
 });
 
-// describe("User metadata ", () => {
-//   let token = "";
-//   let avatarId = "";
-//   beforeAll(async () => {
-//     const username = "Bob" + Math.random();
-//     const password = "qwerty123";
-//     const type = "admin";
-//     await axios.post(`${SERVER_URL}/api/v1/signup`, {
-//       username,
-//       password,
-//       type,
-//     });
-//     const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
-//       username,
-//       password,
-//     });
-//     expect(res.status).toBe(200);
-//     token = res.body.token;
-//     const avatarRes = await axios.post(
-//       `${SERVER_URL}/api/v1/admin/avatar`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         name: "Admin",
-//       },
-//       { Headers: { authorization: `Bearer ${token}` } }
-//     );
-//     avatarId = avatarRes.body.avatarId;
-//   });
-//   //need to get the token before running endpoints
-//   //avatar
-//   test("user cant update their metadata with wrong avatarId", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/user/metadata`,
-//       {
-//         avatarId: "12122211",
-//       },
-//       { Headers: { authorization: `Bearer ${token}` } }
-//     );
-//     expect(res.status).toBe(200);
-//   });
-//   test("user can update their metadata", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/user/metadata`,
-//       {
-//         avatarId,
-//       },
-//       { Headers: { authorization: `Bearer ${token}` } }
-//     );
-//     expect(res.status).toBe(200);
-//   });
-//   test("user cant update their metadata coz auth is not present", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/user/metadata`,
-//       {
-//         avatarId,
-//       },
-//       { Headers: { authorization: `Bearer ${token}` } }
-//     );
-//     expect(res.status).toBe(403);
-//   });
-// });
+describe("User metadata ", () => {
+  let token = "";
+  let avatarId = "";
+  beforeAll(async () => {
+    const username = "Bob" + Math.random();
+    const password = "qwerty123";
+    const type = "admin";
+    await axios.post(`${SERVER_URL}/api/v1/signup`, {
+      username,
+      password,
+      type,
+    });
+    const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
+      username,
+      password,
+    });
+    token = res.data.token;
+    const avatarRes = await axios.post(
+      `${SERVER_URL}/api/v1/admin/avatar`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        name: "Admin",
+      },
+      { headers: { authorization: `Bearer ${token}` } }
+    );
+    avatarId = avatarRes.data.id;
 
-// describe("user avatar information", () => {
-//   let token = "";
-//   let avatarId = "";
-//   let userId = "";
-//   beforeAll(async () => {
-//     const username = "Bob" + Math.random();
-//     const password = "qwerty123";
-//     const type = "admin";
-//     const signupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
-//       username,
-//       password,
-//       type,
-//     });
-//     userId = signupRes.data.userId;
-//     const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
-//       username,
-//       password,
-//     });
-//     expect(res.status).toBe(200);
-//     token = res.body.token;
-//     const avatarRes = await axios.post(
-//       `${SERVER_URL}/api/v1/admin/avatar`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         name: "Admin",
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${token}`,
-//         },
-//       }
-//     );
-//     avatarId = avatarRes.body.avatarId;
-//   });
+    expect(avatarRes.status).toBe(200);
+  });
 
-//   test("get user avatar info for a user ", async () => {
-//     const res = await axios.get(
-//       `${SERVER_URL}/api/v1/user/metadata/bulk?ids=[${userId}]`,
-//       { Headers: { authorization: `Bearer ${token}` } }
-//     );
-//     expect(res.data.avatars.length).toBe(1);
-//     expect(res.data.avatars[0].userId).toBe(userId);
-//   });
-//   test("Available avatars list should contain the recently made avatar ", async () => {
-//     const res = await axios.get(`${SERVER_URL}/api/v1/avatars`, {});
-//     expect(res.data.avatars.length).not.toBe(0);
-//     const currentAvatar = res.data.avatars.find((x) => x.id == avatarId);
-//     expect(currentAvatar).toBeDefined();
-//   });
-// });
-// decribe("space information", () => {
-//   let mapId;
-//   let element1Id;
-//   let element2Id;
-//   let userToken;
-//   let userId;
-//   let adminToken;
-//   let adminId;
+  test("user cant update their metadata with wrong avatarId", async () => {
+    const res = await axios.post(
+      `${SERVER_URL}/api/v1/user/metadata`,
+      {
+        avatarId: "12122211",
+      },
+      { headers: { authorization: `Bearer ${token}` } }
+    );
+    expect(res.status).toBe(400);
+  });
+  test("user can update their metadata", async () => {
+    const res = await axios.post(
+      `${SERVER_URL}/api/v1/user/metadata`,
+      { avatarId },
+      { headers: { authorization: `Bearer ${token}` } }
+    );
+    expect(res.status).toBe(200);
+  });
+  test("user cant update their metadata coz auth is not present", async () => {
+    const res = await axios.post(`${SERVER_URL}/api/v1/user/metadata`, {
+      avatarId,
+    });
+    expect(res.status).toBe(403);
+  });
+});
 
-//   beforeAll(async () => {
-//     const username = "Bob" + Math.random();
-//     const password = "qwerty123";
-//     const type = "admin";
-//     const signupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
-//       username,
-//       password,
-//       type,
-//     });
+describe("user avatar information", () => {
+  let token = "";
+  let avatarId = "";
+  let userId = "";
+  beforeAll(async () => {
+    const username = "Bob" + Math.random();
+    const password = "qwerty123";
+    const type = "admin";
+    const signUpRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
+      username,
+      password,
+      type,
+    });
+    userId = signUpRes.data.userId;
+    const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
+      username,
+      password,
+    });
+    token = res.data.token;
+    const avatarRes = await axios.post(
+      `${SERVER_URL}/api/v1/admin/avatar`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        name: "Admin",
+      },
+      { headers: { authorization: `Bearer ${token}` } }
+    );
+    avatarId = avatarRes.data.id;
+    expect(avatarRes.status).toBe(200);
+  });
+  test("get user avatar info for a user ", async () => {
+    const res = await axios.get(
+      `${SERVER_URL}/api/v1/user/metadata/bulk?ids=[${userId}]`
+    );
+    expect(res.data.avatars.length).toBe(1);
+    expect(res.data.avatars[0].userId).toBe(userId);
+  });
+  test("Available avatars list should contain the recently made avatar ", async () => {
+    const res = await axios.get(`${SERVER_URL}/api/v1/avatars`, {});
+    expect(res.data.avatars.length).not.toBe(0);
+    const currentAvatar = res.data.avatars.find((x) => x.id == avatarId);
+    expect(currentAvatar).toBeDefined();
+  });
+});
+describe("space information", () => {
+  let mapId;
+  let element1Id;
+  let element2Id;
+  let userToken;
+  let userId;
+  let adminToken;
+  let adminId;
 
-//     adminId = signupRes.data.userId;
-//     const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
-//       username,
-//       password,
-//     });
-//     expect(res.status).toBe(200);
-//     adminToken = res.body.token;
-//     const userSignupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
-//       username: username + "_user",
-//       password,
-//       type: "user",
-//     });
+  beforeAll(async () => {
+    const username = "Bob" + Math.random();
+    const password = "qwerty123";
+    const type = "admin";
+    const signupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
+      username,
+      password,
+      type,
+    });
+    expect(signupRes.status).toBe(200);
 
-//     userId = userSignupRes.data.userId;
-//     const userRes = await axios.post(`${SERVER_URL}/api/v1/signin`, {
-//       username: username + "_user",
-//       password,
-//     });
-//     expect(res.status).toBe(200);
-//     userToken = userRes.body.token;
-//     const element1Res = await axios.post(
-//       `${SERVER_URL}/api/admin/element`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 1,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     const element2Res = await axios.post(
-//       `${SERVER_URL}/api/admin/element`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 1,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     element1Id = element1Res.data.id;
-//     element2Id = element2Res.data.id;
-//     const mapRes = await axios.post(
-//       `${SERVER_URL}/api/admin/map`,
-//       {
-//         thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
-//         dimension: "100x200",
-//         defaultElements: [
-//           {
-//             elementId: element1Id,
-//             x: 20,
-//             y: 20,
-//           },
-//           {
-//             elementId: element2Id,
-//             x: 13,
-//             y: 22,
-//           },
-//         ],
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     mapId = mapRes.data.id;
-//   });
-//   test("user is able create a space", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/space`,
-//       {
-//         name: "test",
-//         dimension: "100x200",
-//         mapId: mapId,
-//       },
-//       {
-//         Headers: {
-//           authorization: `bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     expect(res.data.spaceId).toBeDefined();
-//   });
-//   test("user is not able create a empty space without dimension", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/space`,
-//       {
-//         name: "test",
-//         dimension: "100x200",
-//       },
-//       {
-//         Headers: {
-//           authorization: `bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     expect(res.status).toBe(400);
-//   });
+    adminId = signupRes.data.userId;
+    const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
+      username,
+      password,
+    });
+    expect(res.status).toBe(200);
+    adminToken = res.data.token;
+    const userSignupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
+      username: username + "_user",
+      password,
+      type: "user",
+    });
 
-//   test("user is not able delete a  space that doesnt exist", async () => {
-//     const res = await axios.delete(`${SERVER_URL}/api/v1/space/randomspaceID`, {
-//       Headers: {
-//         authorization: `bearer ${userToken}`,
-//       },
-//     });
-//     expect(res.status).toBe(400);
-//   });
-//   test("user is  able delete a  space that  exist", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/space`,
-//       {
-//         name: "test",
-//         dimension: "100x200",
-//         mapId: mapId,
-//       },
-//       {
-//         Headers: {
-//           authorization: `bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     const deleteRes = await axios.delete(
-//       `${SERVER_URL}/api/v1/space/${res.data.spaceId}`,
-//       {
-//         Headers: {
-//           authorization: `bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     expect(deleteResp.status).toBe(200);
-//   });
-//   test("user is not  able delete a  space that  is created by other user", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/space`,
-//       {
-//         name: "test",
-//         dimension: "100x200",
-//         mapId: mapId,
-//       },
-//       {
-//         Headers: {
-//           authorization: `bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     const deleteRes = await axios.delete(
-//       `${SERVER_URL}/api/v1/space/${res.data.spaceId}`,
-//       {
-//         Headers: {
-//           authorization: `bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     expect(deleteResp.status).toBe(400);
-//   });
-//   test("admin has no space initially", async () => {
-//     const res = await axios.get(`${SERVER_URL}/api/v1/space/all`);
+    userId = userSignupRes.data.userId;
+    const userRes = await axios.post(`${SERVER_URL}/api/v1/signin`, {
+      username: username + "_user",
+      password,
+    });
+    expect(res.status).toBe(200);
+    userToken = userRes.data.token;
+    const element1Res = await axios.post(
+      `${SERVER_URL}/api/v1/admin/element`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 1,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    expect(element1Res.status).toBe(200);
 
-//     expect(res.data.spaces.length).toBe(0);
-//   });
-//   test("admin has no space initially", async () => {
-//     const res = await axios.get(`${SERVER_URL}/api/v1/space/all`, {
-//       Headers: {
-//         authorization: `bearer ${userToken}`,
-//       },
-//     });
+    const element2Res = await axios.post(
+      `${SERVER_URL}/api/v1/admin/element`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 1,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    expect(element2Res.status).toBe(200);
 
-//     expect(res.data.spaces.length).toBe(0);
-//   });
-//   test("admin has no space initially", async () => {
-//     const spaceCreatedRes = await axios.post(
-//       `${SERVER_URL}/api/v1/space`,
-//       {
-//         name: "test",
-//         dimension: "100x200",
-//       },
-//       {
-//         Headers: {
-//           authorization: `bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     const res = await axios.get(`${SERVER_URL}/api/v1/space/all`, {
-//       Headers: {
-//         authorization: `bearer ${userToken}`,
-//       },
-//     });
-//     const filteredSpace = response.data.spaces.find(
-//       (x) => x.id == spaceCreatedRes.id
-//     );
-//     expect(filteredSpace).toBeDefined();
-//     expect(res.data.spaces.length).toBe(1);
-//   });
-// });
+    element1Id = element1Res.data.id;
+    element2Id = element2Res.data.id;
+    const mapRes = await axios.post(
+      `${SERVER_URL}/api/v1/admin/map`,
+      {
+        name: "test",
+        thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
+        dimension: "100x200",
+        defaultElements: [
+          {
+            elementId: element1Id,
+            x: 20,
+            y: 20,
+          },
+          {
+            elementId: element2Id,
+            x: 13,
+            y: 22,
+          },
+        ],
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    expect(mapRes.status).toBe(200);
 
-// decribe("Arena", () => {
-//   let mapId;
-//   let element1Id;
-//   let element2Id;
-//   let userToken;
-//   let userId;
-//   let adminToken;
-//   let adminId;
-//   let spaceId;
-//   beforeAll(async () => {
-//     const username = "Bob" + Math.random();
-//     const password = "qwerty123";
-//     const type = "admin";
-//     const signupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
-//       username,
-//       password,
-//       type,
-//     });
+    mapId = mapRes.data.id;
+  });
+  test("user is able create a space", async () => {
+    const res = await axios.post(
+      `${SERVER_URL}/api/v1/space`,
+      {
+        name: "test",
+        dimension: "100x200",
+        mapId: mapId,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    expect(res.data.spaceId).toBeDefined();
+  });
+  test("user is  able create a empty space without mapId", async () => {
+    const res = await axios.post(
+      `${SERVER_URL}/api/v1/space`,
+      {
+        name: "test",
+        dimension: "100x200",
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    expect(res.status).toBe(200);
 
-//     adminId = signupRes.data.userId;
-//     const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
-//       username,
-//       password,
-//     });
-//     expect(res.status).toBe(200);
-//     adminToken = res.body.token;
-//     const userSignupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
-//       username: username + "_user",
-//       password,
-//       type: "user",
-//     });
+    expect(res.data.spaceId).toBeDefined();
+  });
 
-//     userId = userSignupRes.data.userId;
-//     const userRes = await axios.post(`${SERVER_URL}/api/v1/signin`, {
-//       username: username + "_user",
-//       password,
-//     });
-//     expect(res.status).toBe(200);
-//     userToken = userRes.body.token;
-//     const element1Res = await axios.post(
-//       `${SERVER_URL}/api/admin/element`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 1,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     const element2Res = await axios.post(
-//       `${SERVER_URL}/api/admin/element`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 1,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     element1Id = element1Res.data.id;
-//     element2Id = element2Res.data.id;
-//     const mapRes = await axios.post(
-//       `${SERVER_URL}/api/admin/map`,
-//       {
-//         thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
-//         dimension: "100x200",
-//         defaultElements: [
-//           {
-//             elementId: element1Id,
-//             x: 20,
-//             y: 20,
-//           },
-//           {
-//             elementId: element2Id,
-//             x: 13,
-//             y: 22,
-//           },
-//         ],
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     mapId = mapRes.data.id;
-//     const spaceRes = await axios.post(
-//       `${SERVER_URL}/api/v1/space`,
-//       {
-//         name: "test",
-//         dimension: "100x200",
-//         mapId: mapId,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     spaceId = spaceRes.data.spaceId;
-//   });
+  test("user is not able delete a  space that doesnt exist", async () => {
+    const res = await axios.delete(`${SERVER_URL}/api/v1/space/randomspaceID`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(res.status).toBe(400);
+  });
+  test("user is  able delete a  space that  exist", async () => {
+    const res = await axios.post(
+      `${SERVER_URL}/api/v1/space`,
+      {
+        name: "test",
+        dimension: "100x200",
+        mapId: mapId,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    expect(res.status).toBe(200);
 
-//   test("incorrect space id returns 400", async () => {
-//     const res = await axios.get(`${SERVER_URL}/api/v1/space/qwerty123`, {
-//       Headers: {
-//         authorization: `Bearer ${userToken}`,
-//       },
-//     });
-//     expect(res.status).toBe(400);
-//   });
-//   test("correct space id returns all elements", async () => {
-//     const res = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
-//       Headers: {
-//         authorization: `Bearer ${userToken}`,
-//       },
-//     });
-//     expect(res.data.dimensions).toBe("100x200");
-//     expect(res.data.elements.length).toBe(2);
-//   });
-//   test("delete elements", async () => {
-//     const res = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
-//       Headers: {
-//         authorization: `Bearer ${userToken}`,
-//       },
-//     });
-//     const deleteRes = await axios.delete(
-//       `${SERVER_URL}/api/v1/space/${spaceId}`,
-//       {
-//         spaceId,
-//         elementId: res.data.elements[0].id,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     const newRes = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
-//       Headers: {
-//         authorization: `Bearer ${userToken}`,
-//       },
-//     });
-//     expect(res.data.elements.length).toBe(1);
-//   });
+    const deleteRes = await axios.delete(
+      `${SERVER_URL}/api/v1/space/${res.data.spaceId}`,
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
 
-//   test("add elements inside space ", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/space/element`,
-//       {
-//         spaceId,
-//         elementId: element1Id,
-//         x: 1,
-//         y: 1,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     const newRes = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
-//       Headers: {
-//         authorization: `Bearer ${userToken}`,
-//       },
-//     });
-//     expect(res.data.elements.length).toBe(2);
-//   });
-//   test("add elements inside space outside dimension gives error", async () => {
-//     const res = await axios.post(
-//       `${SERVER_URL}/api/v1/space/element`,
-//       {
-//         spaceId,
-//         elementId: element1Id,
-//         x: 10000,
-//         y: 100000,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     expect(res.status).toBe(400);
-//   });
-// });
+    expect(deleteRes.status).toBe(200);
+  });
+  test("user is not  able delete a  space that  is created by other user", async () => {
+    const res = await axios.post(
+      `${SERVER_URL}/api/v1/space`,
+      {
+        name: "test",
+        dimension: "100x200",
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    const deleteRes = await axios.delete(
+      `${SERVER_URL}/api/v1/space/${res.data.spaceId}`,
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    expect(deleteRes.status).toBe(403);
+  });
 
-// describe("element creation", () => {
-//   let userToken;
-//   let userId;
-//   let adminToken;
-//   let adminId;
+  test("admin has no space initially", async () => {
+    const getRes = await axios.get(`${SERVER_URL}/api/v1/space/all`, {
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+      },
+    });
 
-//   beforeAll(async () => {
-//     const username = "Bob" + Math.random();
-//     const password = "qwerty123";
-//     const type = "admin";
-//     const signupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
-//       username,
-//       password,
-//       type,
-//     });
+    expect(getRes.status).toBe(200);
 
-//     adminId = signupRes.data.userId;
-//     const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
-//       username,
-//       password,
-//     });
-//     expect(res.status).toBe(200);
-//     adminToken = res.body.token;
-//     const userSignupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
-//       username: username + "_user",
-//       password,
-//       type: "user",
-//     });
+    expect(getRes.data.spaces.length).toBe(0);
+  });
+  test("admin can create  space", async () => {
+    const spaceCreatedRes = await axios.post(
+      `${SERVER_URL}/api/v1/space`,
+      {
+        name: "test",
+        dimension: "100x200",
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
 
-//     userId = userSignupRes.data.userId;
-//     const userRes = await axios.post(`${SERVER_URL}/api/v1/signin`, {
-//       username: username + "_user",
-//       password,
-//     });
-//     expect(res.status).toBe(200);
-//     userToken = userRes.body.token;
-//   });
+    expect(spaceCreatedRes.status).toBe(200);
 
-//   test("user cant make to admin endpoints", async () => {
-//     const elementRes = await axios.post(
-//       `${SERVER_URL}/api/admin/element`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 1,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     const mapRes = await axios.post(
-//       `${SERVER_URL}/api/admin/map`,
-//       {
-//         thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
-//         dimension: "100x200",
-//         defaultElements: [],
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     const avatarRes = await axios.post(
-//       `${SERVER_URL}/api/v1/admin/avatar`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         name: "Admin",
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     const updateElementRes = await axios.put(
-//       `${SERVER_URL}/api/admin/element/${elementRes.data.id}`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 2,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${userToken}`,
-//         },
-//       }
-//     );
-//     expect(elementRes.status).toBe(404);
-//     expect(mapRes.status).toBe(404);
-//     expect(avatarRes.status).toBe(404);
-//     expect(updateElementRes.status).toBe(404);
-//   });
+    const res = await axios.get(`${SERVER_URL}/api/v1/space/all`, {
+      headers: {
+        authorization: `Bearer ${adminToken}`,
+      },
+    });
+    expect(res.status).toBe(200);
 
-//   test("admin can make to admin endpoints", async () => {
-//     const elementRes = await axios.post(
-//       `${SERVER_URL}/api/admin/element`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 1,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     const mapRes = await axios.post(
-//       `${SERVER_URL}/api/admin/map`,
-//       {
-//         thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
-//         dimension: "100x200",
-//         defaultElements: [],
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     const avatarRes = await axios.post(
-//       `${SERVER_URL}/api/v1/admin/avatar`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         name: "Admin",
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
+    const filteredSpace = res.data.spaces.find(
+      (x) => x.id == spaceCreatedRes.data.spaceId
+    );
+    expect(filteredSpace).toBeDefined();
+    expect(res.data.spaces.length).toBe(1);
+  });
+});
 
-//     expect(elementRes.status).toBe(200);
-//     expect(mapRes.status).toBe(200);
-//     expect(avatarRes.status).toBe(200);
-//   });
-//   test("admin is able to edit an element", async () => {
-//     const elementRes = await axios.post(
-//       `${SERVER_URL}/api/admin/element`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 1,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     const updateElementRes = await axios.put(
-//       `${SERVER_URL}/api/admin/element/${elementRes.data.id}`,
-//       {
-//         imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
-//         width: 2,
-//         height: 1,
-//         static: true,
-//       },
-//       {
-//         Headers: {
-//           authorization: `Bearer ${adminToken}`,
-//         },
-//       }
-//     );
-//     expect(updateElementRes.status).toBe(200);
-//   });
-// });
+describe("Arena", () => {
+  let mapId;
+  let element1Id;
+  let element2Id;
+  let userToken;
+  let userId;
+  let adminToken;
+  let adminId;
+  let spaceId;
+  beforeAll(async () => {
+    const username = "Bob" + Math.random();
+    const password = "qwerty123";
+    const type = "admin";
+    const signupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
+      username,
+      password,
+      type,
+    });
+
+    adminId = signupRes.data.userId;
+    const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
+      username,
+      password,
+    });
+    expect(res.status).toBe(200);
+    adminToken = res.data.token;
+    const userSignupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
+      username: username + "_user",
+      password,
+      type: "user",
+    });
+
+    userId = userSignupRes.data.userId;
+    const userRes = await axios.post(`${SERVER_URL}/api/v1/signin`, {
+      username: username + "_user",
+      password,
+    });
+    expect(res.status).toBe(200);
+    userToken = userRes.body.token;
+    const element1Res = await axios.post(
+      `${SERVER_URL}/api/admin/element`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 1,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    const element2Res = await axios.post(
+      `${SERVER_URL}/api/admin/element`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 1,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    element1Id = element1Res.data.id;
+    element2Id = element2Res.data.id;
+    const mapRes = await axios.post(
+      `${SERVER_URL}/api/admin/map`,
+      {
+        thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
+        dimension: "100x200",
+        defaultElements: [
+          {
+            elementId: element1Id,
+            x: 20,
+            y: 20,
+          },
+          {
+            elementId: element2Id,
+            x: 13,
+            y: 22,
+          },
+        ],
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    mapId = mapRes.data.id;
+    const spaceRes = await axios.post(
+      `${SERVER_URL}/api/v1/space`,
+      {
+        name: "test",
+        dimension: "100x200",
+        mapId: mapId,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    spaceId = spaceRes.data.spaceId;
+  });
+
+  test("incorrect space id returns 400", async () => {
+    const res = await axios.get(`${SERVER_URL}/api/v1/space/qwerty123`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(res.status).toBe(400);
+  });
+  test("correct space id returns all elements", async () => {
+    const res = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(res.data.dimensions).toBe("100x200");
+    expect(res.data.elements.length).toBe(2);
+  });
+  test("delete elements", async () => {
+    const res = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    const deleteRes = await axios.delete(
+      `${SERVER_URL}/api/v1/space/${spaceId}`,
+      {
+        spaceId,
+        elementId: res.data.elements[0].id,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    const newRes = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(res.data.elements.length).toBe(1);
+  });
+
+  test("add elements inside space ", async () => {
+    const res = await axios.post(
+      `${SERVER_URL}/api/v1/space/element`,
+      {
+        spaceId,
+        elementId: element1Id,
+        x: 1,
+        y: 1,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    const newRes = await axios.get(`${SERVER_URL}/api/v1/space/${spaceId}`, {
+      headers: {
+        authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(res.data.elements.length).toBe(2);
+  });
+  test("add elements inside space outside dimension gives error", async () => {
+    const res = await axios.post(
+      `${SERVER_URL}/api/v1/space/element`,
+      {
+        spaceId,
+        elementId: element1Id,
+        x: 10000,
+        y: 100000,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    expect(res.status).toBe(400);
+  });
+});
+
+describe("element creation", () => {
+  let userToken;
+  let userId;
+  let adminToken;
+  let adminId;
+
+  beforeAll(async () => {
+    const username = "Bob" + Math.random();
+    const password = "qwerty123";
+    const type = "admin";
+    const signupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
+      username,
+      password,
+      type,
+    });
+
+    adminId = signupRes.data.userId;
+    const res = await axios.post(`${SERVER_URL}/api/v1/signin`, {
+      username,
+      password,
+    });
+    expect(res.status).toBe(200);
+    adminToken = res.data.token;
+    const userSignupRes = await axios.post(`${SERVER_URL}/api/v1/signup`, {
+      username: username + "_user",
+      password,
+      type: "user",
+    });
+
+    userId = userSignupRes.data.userId;
+    const userRes = await axios.post(`${SERVER_URL}/api/v1/signin`, {
+      username: username + "_user",
+      password,
+    });
+    expect(res.status).toBe(200);
+    userToken = userRes.body.token;
+  });
+
+  test("user cant make to admin endpoints", async () => {
+    const elementRes = await axios.post(
+      `${SERVER_URL}/api/admin/element`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 1,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    const mapRes = await axios.post(
+      `${SERVER_URL}/api/admin/map`,
+      {
+        thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
+        dimension: "100x200",
+        defaultElements: [],
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    const avatarRes = await axios.post(
+      `${SERVER_URL}/api/v1/admin/avatar`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        name: "Admin",
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    const updateElementRes = await axios.put(
+      `${SERVER_URL}/api/admin/element/${elementRes.data.id}`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 2,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    expect(elementRes.status).toBe(404);
+    expect(mapRes.status).toBe(404);
+    expect(avatarRes.status).toBe(404);
+    expect(updateElementRes.status).toBe(404);
+  });
+
+  test("admin can make to admin endpoints", async () => {
+    const elementRes = await axios.post(
+      `${SERVER_URL}/api/admin/element`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 1,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    const mapRes = await axios.post(
+      `${SERVER_URL}/api/admin/map`,
+      {
+        thumbnail: "https://www.w3schools.com/howto/img_avatar.png",
+        dimension: "100x200",
+        defaultElements: [],
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    const avatarRes = await axios.post(
+      `${SERVER_URL}/api/v1/admin/avatar`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        name: "Admin",
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+
+    expect(elementRes.status).toBe(200);
+    expect(mapRes.status).toBe(200);
+    expect(avatarRes.status).toBe(200);
+  });
+  test("admin is able to edit an element", async () => {
+    const elementRes = await axios.post(
+      `${SERVER_URL}/api/admin/element`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 1,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    const updateElementRes = await axios.put(
+      `${SERVER_URL}/api/admin/element/${elementRes.data.id}`,
+      {
+        imageUrl: "https://www.w3schools.com/howto/img_avatar.png",
+        width: 2,
+        height: 1,
+        static: true,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminToken}`,
+        },
+      }
+    );
+    expect(updateElementRes.status).toBe(200);
+  });
+});
 
 // describe("Websocket", () => {
 //   let userToken;
@@ -873,7 +876,7 @@ describe("Authentication", () => {
 //         static: true,
 //       },
 //       {
-//         Headers: {
+//         headers: {
 //           authorization: `Bearer ${adminToken}`,
 //         },
 //       }
@@ -887,7 +890,7 @@ describe("Authentication", () => {
 //         static: true,
 //       },
 //       {
-//         Headers: {
+//         headers: {
 //           authorization: `Bearer ${adminToken}`,
 //         },
 //       }
@@ -913,7 +916,7 @@ describe("Authentication", () => {
 //         ],
 //       },
 //       {
-//         Headers: {
+//         headers: {
 //           authorization: `Bearer ${adminToken}`,
 //         },
 //       }
@@ -927,7 +930,7 @@ describe("Authentication", () => {
 //         mapId: mapId,
 //       },
 //       {
-//         Headers: {
+//         headers: {
 //           authorization: `Bearer ${userToken}`,
 //         },
 //       }
