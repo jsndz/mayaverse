@@ -21,5 +21,23 @@ export class RoomManager {
     }
     this.rooms.set(spaceId, [...(this.rooms.get(spaceId) ?? []), user]); //adds the user to the existing list
   }
-  public broadcast(message: OutgoingMessage, user: User) {}
+  public removeUser(user: User, spaceId: string) {
+    if (!this.rooms.has(user.id)) {
+      return;
+    }
+    this.rooms.set(
+      spaceId,
+      this.rooms.get(spaceId)?.filter((u) => u.id != user.id) ?? []
+    );
+  }
+  public broadcast(message: OutgoingMessage, user: User, spaceId: string) {
+    if (!this.rooms.has(user.id)) {
+      return;
+    }
+    this.rooms.get(spaceId)?.forEach((u) => {
+      if (u.id != user.id) {
+        u.send(message);
+      }
+    });
+  }
 }
