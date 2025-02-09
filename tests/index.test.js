@@ -1022,7 +1022,6 @@ describe("Websocket", () => {
     );
 
     const message1 = await waitForAndPopLatest(ws1Messages);
-    console.log(message1);
 
     ws2.send(
       JSON.stringify({
@@ -1034,10 +1033,8 @@ describe("Websocket", () => {
       })
     );
     const message2 = await waitForAndPopLatest(ws2Messages);
-    console.log(message2);
 
     const message3 = await waitForAndPopLatest(ws1Messages);
-    console.log("message3", ws1Messages);
     expect(message1.type).toBe("space-joined");
     expect(message2.type).toBe("space-joined");
     expect(message1.payload.users.length).toBe(0);
