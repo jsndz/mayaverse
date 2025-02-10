@@ -31,7 +31,7 @@ model Space {
   thumbnail String?
   creatorId String
   creator     User    @relation(fields: [creatorId], references: [id])
-  elements  spaceElements[]
+  elements  spaceElements[] 
 }
 
 model spaceElements {
@@ -40,7 +40,7 @@ model spaceElements {
   spaceId   String
   x         Int
   y         Int
-  space     Space  @relation(fields: [spaceId], references: [id])
+  space     Space  @relation(fields: [spaceId], references: [id], onDelete: Cascade) 
   element   Element @relation(fields: [elementId], references: [id])
 }
 

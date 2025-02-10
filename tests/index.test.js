@@ -41,7 +41,7 @@ const axios = {
 const SERVER_URL = "http://localhost:3000";
 const WS_URL = "ws://localhost:3001";
 
-describe.skip("Authentication", () => {
+describe("Authentication", () => {
   test("Signup succeeds ", async () => {
     const username = `3bob-${Math.random()}`;
     const password = "qwerty123";
@@ -113,7 +113,7 @@ describe.skip("Authentication", () => {
   });
 });
 
-describe.skip("User metadata ", () => {
+describe("User metadata ", () => {
   let token = "";
   let avatarId = "";
   beforeAll(async () => {
@@ -169,7 +169,7 @@ describe.skip("User metadata ", () => {
   });
 });
 
-describe.skip("user avatar information", () => {
+describe("user avatar information", () => {
   let token = "";
   let avatarId = "";
   let userId = "";
@@ -213,7 +213,7 @@ describe.skip("user avatar information", () => {
     expect(currentAvatar).toBeDefined();
   });
 });
-describe.skip("space information", () => {
+describe("space information", () => {
   let mapId;
   let element1Id;
   let element2Id;
@@ -451,7 +451,7 @@ describe.skip("space information", () => {
   });
 });
 
-describe.skip("Arena", () => {
+describe("Arena", () => {
   let mapId;
   let element1Id;
   let element2Id;
@@ -664,7 +664,7 @@ describe.skip("Arena", () => {
   });
 });
 
-describe.skip("element creation", () => {
+describe("element creation", () => {
   let userToken;
   let userId;
   let adminToken;

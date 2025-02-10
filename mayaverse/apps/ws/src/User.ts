@@ -1,4 +1,5 @@
 import { WebSocket } from "ws";
+
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { RoomManager } from "./RoomManager";
 import { OutgoingMessage } from "./types";
@@ -15,15 +16,18 @@ function generateRandomNumber(digits: number) {
 }
 
 export class User {
-  public id: string = generateRandomNumber(10);
+  public id?: string;
   private spaceId?: string;
   private x: number;
   private y: number;
   private userId?: string;
-  constructor(private ws: WebSocket) {
+  private ws: WebSocket;
+  constructor(ws: WebSocket) {
+    this.id = generateRandomNumber(10);
     this.ws = ws;
     this.x = 0;
     this.y = 0;
+    this.initHandlers();
   }
   initHandlers() {
     this.ws.on("message", async (data) => {
@@ -32,6 +36,7 @@ export class User {
         case "join":
           const spaceId = parsedData.payload.spaceId;
           const token = parsedData.payload.token;
+
           const userId = (jwt.verify(token, JWT_SECRET) as JwtPayload).userId;
           if (!userId) {
             this.ws.close();
@@ -43,14 +48,16 @@ export class User {
               id: spaceId,
             },
           });
+
           if (!space) {
             this.ws.close();
             return;
           }
           this.spaceId = spaceId;
+          RoomManager.getInstance().addUser(spaceId, this);
+
           this.x = Math.floor(Math.random() * space?.width);
           this.y = Math.floor(Math.random() * space?.height);
-          RoomManager.getInstance().addUser(spaceId, this);
           this.send({
             type: "space-joined",
             payload: {
@@ -61,11 +68,11 @@ export class User {
               users:
                 RoomManager.getInstance()
                   .rooms.get(spaceId)
-                  ?.map((user) => ({
-                    id: user.id,
-                  })) ?? [],
+                  ?.filter((x) => x.id !== this.id)
+                  ?.map((u) => ({ id: u.id })) ?? [],
             },
           });
+
           RoomManager.getInstance().broadcast(
             {
               type: "user-joined",
@@ -112,9 +119,6 @@ export class User {
               y: this.y,
             },
           });
-          break;
-        default:
-          break;
       }
     });
   }

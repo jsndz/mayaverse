@@ -6,9 +6,10 @@ import {
   updateElementSchema,
 } from "../../types";
 import client from "@repo/db/client";
+import { AdminMiddleware } from "../../middleware/admin";
 
 const router = Router();
-
+router.use(AdminMiddleware);
 router.post("/element", async (req, res) => {
   const parsedData = createElementSchema.safeParse(req.body);
   if (!parsedData.success) {
@@ -52,20 +53,22 @@ router.put("/element/:elementId", (req, res) => {
 });
 router.post("/map", async (req, res) => {
   const parsedData = createMapSchema.safeParse(req.body);
+
   if (!parsedData.success) {
     res.status(400).json({
       message: "Validation Failed",
     });
     return;
   }
-  const map = client.map.create({
+
+  const map = await client.map.create({
     data: {
       name: parsedData.data.name,
       thumbnail: parsedData.data.thumbnail,
       width: parseInt(parsedData.data.dimension.split("x")[0]),
-      height: parseInt(parsedData.data.dimension.split("x")[0]),
+      height: parseInt(parsedData.data.dimension.split("x")[1]),
       mapElements: {
-        create: parsedData.data.defaultElements.map((element) => ({
+        create: parsedData.data.defaultElements?.map((element) => ({
           elementId: element.elementId,
           x: element.x,
           y: element.y,
@@ -73,8 +76,9 @@ router.post("/map", async (req, res) => {
       },
     },
   });
+
   res.json({
-    id: (await map).id,
+    id: map.id,
   });
 });
 router.post("/avatar", async (req, res) => {

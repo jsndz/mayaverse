@@ -1,5 +1,6 @@
 import express from "express";
 import { router } from "./router/v1";
+import { PORT } from "./config";
 const app = express();
 app.use(express.json());
 app.use("/api/v1", router);
@@ -10,6 +11,6 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`server running in 3000`);
+app.listen(PORT, () => {
+  console.log(`server running in ${PORT}`);
 });

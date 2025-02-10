@@ -18,7 +18,7 @@ export const updateMetaDataSchema = z.object({
 export const createSpaceSchema = z.object({
   name: z.string(),
   dimension: z.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
-  mapId: z.string(),
+  mapId: z.string().optional(),
 });
 
 export const addElementSchema = z.object({
@@ -51,13 +51,15 @@ export const createMapSchema = z.object({
   thumbnail: z.string(),
   dimension: z.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
   name: z.string(),
-  defaultElements: z.array(
-    z.object({
-      elementId: z.string(),
-      x: z.number(),
-      y: z.number(),
-    })
-  ),
+  defaultElements: z
+    .array(
+      z.object({
+        elementId: z.string(),
+        x: z.number(),
+        y: z.number(),
+      })
+    )
+    .optional(),
 });
 
 declare global {
