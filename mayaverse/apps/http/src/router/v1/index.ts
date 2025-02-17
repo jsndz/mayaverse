@@ -78,12 +78,14 @@ router.post("/signin", async (req, res) => {
         userId: user.id,
         role: user.role,
       },
-      JWT_SECRET
+      JWT_SECRET!
     );
     res.status(200).json({
       token: token,
     });
   } catch (error) {
+    console.log(error);
+
     res.status(403).json({
       message: "Internal server error",
     });
