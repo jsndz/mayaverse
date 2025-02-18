@@ -10,37 +10,37 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { getAvatars, updateUserMetadata } from "@/endpoint/endpoint";
 
-const avatars = [
-  {
-    id: 1,
-    url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop",
-    name: "Default 1",
-  },
-  {
-    id: 2,
-    url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
-    name: "Default 2",
-  },
-  {
-    id: 3,
-    url: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150&h=150&fit=crop",
-    name: "Default 3",
-  },
-  {
-    id: 4,
-    url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
-    name: "Default 4",
-  },
-];
+interface Avatar {
+  id: string;
+  imageUrl: string;
+  name: string;
+}
 
 export default function AvatarSelection() {
   const router = useRouter();
   const { toast } = useToast();
-  const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
+  const [avatars, setAvatars] = useState<Avatar[]>([]);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAvatars() {
+      try {
+        const res = await getAvatars();
+
+        if (res && Array.isArray(res.avatars)) {
+          setAvatars(res.avatars);
+        }
+      } catch (error) {
+        console.error("Error fetching avatars:", error);
+      }
+    }
+    fetchAvatars();
+  }, []);
 
   const handleAvatarSelect = async () => {
     if (!selectedAvatar) {
@@ -51,13 +51,16 @@ export default function AvatarSelection() {
       });
       return;
     }
+    const token = localStorage.getItem("token");
+    console.log(token);
 
     try {
+      const res = await updateUserMetadata(token!, selectedAvatar);
       toast({
         title: "Success",
         description: "Avatar selected successfully!",
       });
-      router.push("/auth/signin");
+      router.push("/spaces");
     } catch (error) {
       toast({
         title: "Error",
@@ -89,7 +92,7 @@ export default function AvatarSelection() {
                 onClick={() => setSelectedAvatar(avatar.id)}
               >
                 <Image
-                  src={avatar.url}
+                  src={avatar.imageUrl}
                   alt={avatar.name}
                   width={150}
                   height={150}

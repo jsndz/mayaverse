@@ -5,7 +5,7 @@ const url =
     ? process.env.NEXT_PUBLIC_DEV_URL
     : process.env.NEXT_PUBLIC_PROD_URL;
 
-const signin = async (username: string, password: string) => {
+export const signin = async (username: string, password: string) => {
   if (!username || !password) {
     console.error("Didnt get an user infos");
     return;
@@ -24,7 +24,7 @@ const signin = async (username: string, password: string) => {
   }
 };
 
-const signup = async (username: string, password: string) => {
+export const signup = async (username: string, password: string) => {
   if (!username || !password) {
     console.error("Didnt get an user infos");
     return;
@@ -44,4 +44,32 @@ const signup = async (username: string, password: string) => {
   }
 };
 
-export { signin, signup };
+export const getAvatars = async () => {
+  try {
+    const res = await axios.get(`${url}/avatars`);
+    console.log(res);
+
+    return res.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const updateUserMetadata = async (token: string, avatarId: string) => {
+  try {
+    console.log(token, avatarId);
+
+    const res = await axios.post(
+      `${url}/user/metadata`,
+      { avatarId },
+      { headers: { authorization: `Bearer ${token}` } }
+    );
+    console.log(res.status);
+
+    return res;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

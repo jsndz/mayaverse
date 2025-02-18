@@ -41,7 +41,6 @@ export default function SignIn() {
 
   const onSubmit = async (data: SignInForm) => {
     try {
-      // TODO: Implement actual sign in logic
       const res = await signin(data.username, data.password);
       localStorage.setItem("token", res?.data.token);
       console.log(res?.data.token);

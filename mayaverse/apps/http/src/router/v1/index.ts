@@ -34,8 +34,16 @@ router.post("/signup", async (req, res) => {
         role: parsedData.data.type === "admin" ? "Admin" : "User",
       },
     });
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        role: user.role,
+      },
+      JWT_SECRET!
+    );
     res.status(200).json({
       userId: user.id,
+      token: token,
     });
   } catch (error) {
     res.status(400).json({

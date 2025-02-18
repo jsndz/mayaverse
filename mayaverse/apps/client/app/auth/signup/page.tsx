@@ -46,7 +46,7 @@ export default function SignUp() {
   const onSubmit = async (data: SignUpForm) => {
     try {
       const res = await signup(data.name, data.password);
-      console.log(res);
+      localStorage.setItem("token", res?.data.token);
 
       toast({
         title: "Success",
