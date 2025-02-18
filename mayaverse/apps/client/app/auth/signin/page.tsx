@@ -13,19 +13,23 @@ import { Label } from "@/components/ui/label";
 import { signin } from "@/endpoint/endpoint";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Route } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  username: z.string()
+  username: z.string(),
 });
 
 type SignInForm = z.infer<typeof signInSchema>;
 
 export default function SignIn() {
+  const router = useRouter();
+
   const { toast } = useToast();
   const {
     register,
@@ -38,11 +42,15 @@ export default function SignIn() {
   const onSubmit = async (data: SignInForm) => {
     try {
       // TODO: Implement actual sign in logic
-      const res = await signin(data.username,data.password);
+      const res = await signin(data.username, data.password);
+      localStorage.setItem("token", res?.data.token);
+      console.log(res?.data.token);
+
       toast({
         title: "Success",
         description: "Signed in successfully!",
       });
+      router.push("/spaces");
     } catch (error) {
       toast({
         title: "Error",
@@ -63,7 +71,7 @@ export default function SignIn() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="email">Username</Label>
               <Input
                 id="text"
@@ -93,11 +101,7 @@ export default function SignIn() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register("password")}
-              />
+              <Input id="password" type="password" {...register("password")} />
               {errors.password && (
                 <p className="text-sm text-destructive">
                   {errors.password.message}

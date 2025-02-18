@@ -57,7 +57,7 @@ export default function AvatarSelection() {
         title: "Success",
         description: "Avatar selected successfully!",
       });
-      router.push("/spaces");
+      router.push("/auth/signin");
     } catch (error) {
       toast({
         title: "Error",

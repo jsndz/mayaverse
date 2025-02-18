@@ -46,6 +46,8 @@ export default function SignUp() {
   const onSubmit = async (data: SignUpForm) => {
     try {
       const res = await signup(data.name, data.password);
+      console.log(res);
+
       toast({
         title: "Success",
         description: "Account created successfully!",
@@ -72,7 +74,7 @@ export default function SignUp() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">Username</Label>
               <Input id="name" placeholder="John Doe" {...register("name")} />
               {errors.name && (
                 <p className="text-sm text-destructive">
