@@ -95,20 +95,28 @@ router.post("/signin", async (req, res) => {
 router.get("/element", async (req, res) => {
   const elements = await client.element.findMany();
   res.json({
-    elements: elements.map((element) => ({
-      id: element.id,
-      imageUrl: element.imageUrl,
-      static: element.static,
-      width: element.width,
-      height: element.height,
-    })),
+    elements: elements.map(
+      (element: {
+        id: any;
+        imageUrl: any;
+        static: any;
+        width: any;
+        height: any;
+      }) => ({
+        id: element.id,
+        imageUrl: element.imageUrl,
+        static: element.static,
+        width: element.width,
+        height: element.height,
+      })
+    ),
   });
 });
 router.get("/avatars", async (req, res) => {
   const avatars = await client.avatar.findMany();
 
   res.json({
-    avatars: avatars.map((avatar) => ({
+    avatars: avatars.map((avatar: { id: any; imageUrl: any; name: any }) => ({
       id: avatar.id,
       imageUrl: avatar.imageUrl,
       name: avatar.name,

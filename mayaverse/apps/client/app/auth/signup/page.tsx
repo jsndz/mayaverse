@@ -18,15 +18,17 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const signUpSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const signUpSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type SignUpForm = z.infer<typeof signUpSchema>;
 
@@ -43,9 +45,7 @@ export default function SignUp() {
 
   const onSubmit = async (data: SignUpForm) => {
     try {
-      // TODO: Implement actual sign up logic
-      const res = await signup(data.name,data.password);
-      console.log("Sign up data:", data);
+      const res = await signup(data.name, data.password);
       toast({
         title: "Success",
         description: "Account created successfully!",
@@ -73,13 +73,11 @@ export default function SignUp() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                placeholder="John Doe"
-                {...register("name")}
-              />
+              <Input id="name" placeholder="John Doe" {...register("name")} />
               {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.name.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -98,11 +96,7 @@ export default function SignUp() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register("password")}
-              />
+              <Input id="password" type="password" {...register("password")} />
               {errors.password && (
                 <p className="text-sm text-destructive">
                   {errors.password.message}

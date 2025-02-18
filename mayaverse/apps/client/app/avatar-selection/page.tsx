@@ -53,8 +53,6 @@ export default function AvatarSelection() {
     }
 
     try {
-      // TODO: Implement avatar selection logic
-      console.log("Selected avatar:", selectedAvatar);
       toast({
         title: "Success",
         description: "Avatar selected successfully!",

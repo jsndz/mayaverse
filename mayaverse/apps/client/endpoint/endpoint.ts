@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 const url =
@@ -6,16 +5,16 @@ const url =
     ? process.env.NEXT_PUBLIC_DEV_URL
     : process.env.NEXT_PUBLIC_PROD_URL;
 
-const signin = async(username:string,password:string) => {
+const signin = async (username: string, password: string) => {
   if (!username || !password) {
     console.error("Didnt get an user infos");
     return;
   }
 
   try {
-    const res = await axios.post(`${url}/signin/`,{
-        username,
-        password,
+    const res = await axios.post(`${url}/signin/`, {
+      username,
+      password,
     });
 
     return res;
@@ -25,17 +24,17 @@ const signin = async(username:string,password:string) => {
   }
 };
 
-const signup = async(username:string,password:string) => {
+const signup = async (username: string, password: string) => {
   if (!username || !password) {
     console.error("Didnt get an user infos");
     return;
   }
 
   try {
-    const res = await axios.post(`${url}/signup/`,{
-        username,
-        password,
-        type: "user",
+    const res = await axios.post(`${url}/signup/`, {
+      username,
+      password,
+      type: "user",
     });
 
     return res;
@@ -45,8 +44,4 @@ const signup = async(username:string,password:string) => {
   }
 };
 
-
-
-export {
-signin,signup
-};
+export { signin, signup };
