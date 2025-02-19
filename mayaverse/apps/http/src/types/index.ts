@@ -47,6 +47,9 @@ export const createAvatarSchema = z.object({
   name: z.string(),
 });
 
+export const deleteAvatarSchema = z.object({
+  id: z.string(),
+});
 export const createMapSchema = z.object({
   thumbnail: z.string(),
   dimension: z.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),

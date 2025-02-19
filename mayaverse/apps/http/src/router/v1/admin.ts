@@ -3,6 +3,7 @@ import {
   createAvatarSchema,
   createElementSchema,
   createMapSchema,
+  deleteAvatarSchema,
   updateElementSchema,
 } from "../../types";
 import client from "@repo/db/client";
@@ -97,6 +98,23 @@ router.post("/avatar", async (req, res) => {
   });
   res.json({
     id: avatar.id,
+  });
+});
+router.delete("/avatar", async (req, res) => {
+  const parsedData = deleteAvatarSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    res.status(400).json({
+      message: "Validation Failed",
+    });
+    return;
+  }
+  const avatar = await client.avatar.delete({
+    where: {
+      id: parsedData.data.id,
+    },
+  });
+  res.status(200).json({
+    message: "deleted successfully",
   });
 });
 export default router;

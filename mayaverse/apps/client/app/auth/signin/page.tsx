@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { signin } from "@/endpoint/endpoint";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Route } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";

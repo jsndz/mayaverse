@@ -18,53 +18,56 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios, { getAdapter } from "axios";
+import { createAvatar, deleteAvatar, getAvatars } from "@/endpoint/endpoint";
 
 interface Avatar {
-  id: number;
-  url: string;
+  id: string;
+  imageUrl: string;
   name: string;
 }
 
 export default function AdminAvatars() {
   const { toast } = useToast();
-  const [avatars, setAvatars] = useState<Avatar[]>([
-    {
-      id: 1,
-      url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop",
-      name: "Default 1",
-    },
-    {
-      id: 2,
-      url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
-      name: "Default 2",
-    },
-  ]);
+  const token = localStorage.getItem("token");
 
-  const handleAddAvatar = (url: string, name: string) => {
-    const newAvatar = {
-      id: Date.now(),
-      url,
-      name,
-    };
-    setAvatars([...avatars, newAvatar]);
-    toast({
-      title: "Success",
-      description: "Avatar added successfully!",
-    });
+  const [avatars, setAvatars] = useState<Avatar[]>([]);
+
+  const handleAddAvatar = async (imageUrl: string, name: string) => {
+    try {
+      const response = await createAvatar(token!, name, imageUrl);
+      const newAvatar = response.data;
+      setAvatars([...avatars, newAvatar]);
+      toast({ title: "Success", description: "Avatar added successfully!" });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to add avatar." });
+    }
   };
 
-  const handleDeleteAvatar = (id: number) => {
+  const handleDeleteAvatar = async (id: string) => {
+    await deleteAvatar(token!, id);
     setAvatars(avatars.filter((avatar) => avatar.id !== id));
-    toast({
-      title: "Success",
-      description: "Avatar deleted successfully!",
-    });
+    toast({ title: "Success", description: "Avatar deleted successfully!" });
   };
+  useEffect(() => {
+    async function fetchAvatars() {
+      try {
+        const res = await getAvatars();
 
+        if (res && Array.isArray(res.avatars)) {
+          setAvatars(res.avatars);
+        }
+        console.log(res);
+      } catch (error) {
+        console.error("Error fetching avatars:", error);
+      }
+    }
+    fetchAvatars();
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       <header className="border-b">
@@ -84,24 +87,25 @@ export default function AdminAvatars() {
                 </DialogDescription>
               </DialogHeader>
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
                   const form = e.target as HTMLFormElement;
-                  const url = (form.elements.namedItem("url") as HTMLInputElement)
-                    .value;
+                  const imageUrl = (
+                    form.elements.namedItem("imageUrl") as HTMLInputElement
+                  ).value;
                   const name = (
                     form.elements.namedItem("name") as HTMLInputElement
                   ).value;
-                  handleAddAvatar(url, name);
+                  await handleAddAvatar(imageUrl, name);
                   form.reset();
                 }}
                 className="space-y-4"
               >
                 <div className="space-y-2">
-                  <Label htmlFor="url">Avatar URL</Label>
+                  <Label htmlFor="imageUrl">Avatar URL</Label>
                   <Input
-                    id="url"
-                    name="url"
+                    id="imageUrl"
+                    name="imageUrl"
                     placeholder="https://example.com/avatar.jpg"
                     required
                   />
@@ -133,7 +137,7 @@ export default function AdminAvatars() {
               <CardContent>
                 <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
                   <Image
-                    src={avatar.url}
+                    src={avatar.imageUrl}
                     alt={avatar.name}
                     fill
                     className="object-cover"

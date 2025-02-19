@@ -58,13 +58,53 @@ export const getAvatars = async () => {
 
 export const updateUserMetadata = async (token: string, avatarId: string) => {
   try {
-    console.log(token, avatarId);
-
     const res = await axios.post(
       `${url}/user/metadata`,
       { avatarId },
       { headers: { authorization: `Bearer ${token}` } }
     );
+    console.log(res.status);
+
+    return res;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const createAvatar = async (
+  token: string,
+  name: string,
+  imageUrl: string
+) => {
+  try {
+    const res = await axios.post(
+      `${url}/admin/avatar`,
+      { imageUrl, name },
+      { headers: { authorization: `Bearer ${token}` } }
+    );
+    console.log(res.status);
+
+    return res;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const deleteAvatar = async (token: string, id: string) => {
+  try {
+    console.log(token, id);
+
+    const res = await axios.delete(`${url}/admin/avatar`, {
+      data: {
+        id,
+      },
+
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
     console.log(res.status);
 
     return res;
