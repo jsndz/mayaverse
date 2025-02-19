@@ -8,31 +8,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getAllSpaces } from "@/endpoint/endpoint";
 import { Plus, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-const spaces = [
-  {
-    id: 1,
-    name: "Design Team",
-    description: "Collaborative space for our design team",
-    members: 8,
-  },
-  {
-    id: 2,
-    name: "Development Hub",
-    description: "Frontend and backend collaboration",
-    members: 12,
-  },
-  {
-    id: 3,
-    name: "Marketing Space",
-    description: "Campaign planning and coordination",
-    members: 6,
-  },
-];
+interface Space {
+  id: string;
+  name: string;
+  dimension: string;
+  thumbnail: string;
+}
 
 export default function Spaces() {
+  const [spaces, setSpaces] = useState<Space[]>([]);
+  useEffect(() => {
+    async function fetchSpaces() {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await getAllSpaces(token!);
+
+        if (res && Array.isArray(res)) {
+          setSpaces(res);
+        }
+      } catch (error) {
+        console.error("Error fetching avatars:", error);
+      }
+    }
+    fetchSpaces();
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       <header className="border-b">
@@ -51,16 +57,17 @@ export default function Spaces() {
           {spaces.map((space) => (
             <Link key={space.id} href={`/spaces/${space.id}`}>
               <Card className="h-full hover:shadow-lg transition-shadow">
+                <div className="relative w-full h-40">
+                  <img
+                    src={space.thumbnail}
+                    alt={`${space.name} thumbnail`}
+                    className="w-full h-full object-cover rounded-t-lg"
+                  />
+                </div>
                 <CardHeader>
                   <CardTitle>{space.name}</CardTitle>
-                  <CardDescription>{space.description}</CardDescription>
+                  <CardDescription>{space.dimension}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center text-muted-foreground">
-                    <Users className="h-4 w-4 mr-2" />
-                    <span>{space.members} members</span>
-                  </div>
-                </CardContent>
               </Card>
             </Link>
           ))}

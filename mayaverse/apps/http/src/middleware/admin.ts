@@ -17,7 +17,7 @@ export const AdminMiddleware = async (
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
+    const decoded = jwt.verify(token, JWT_SECRET!) as {
       role: string;
       userId: string;
     };

@@ -113,3 +113,38 @@ export const deleteAvatar = async (token: string, id: string) => {
     throw error;
   }
 };
+
+export const createSpace = async (
+  token: string,
+  name: string,
+  dimension: string,
+  mapId?: string
+) => {
+  try {
+    const res = await axios.post(
+      `${url}/space/`,
+      { name, dimension, mapId },
+      { headers: { authorization: `Bearer ${token}` } }
+    );
+
+    console.log(res.status);
+    return res.data.spaceId;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getAllSpaces = async (token: string) => {
+  try {
+    const res = await axios.get(`${url}/space/all`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    console.log(res.status);
+    return res.data.spaces;
+  } catch (error) {
+    console.error("Failed to fetch spaces:", error);
+    throw error;
+  }
+};

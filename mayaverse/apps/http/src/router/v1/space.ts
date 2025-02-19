@@ -6,7 +6,6 @@ import {
 } from "../../types";
 import client from "@repo/db/client";
 import { UserMiddleware } from "../../middleware/user";
-import { AdminMiddleware } from "../../middleware/admin";
 
 const router = Router();
 
