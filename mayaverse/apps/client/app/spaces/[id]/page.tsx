@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useEffect,useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { io } from "socket.io-client";
 
 interface Position {
   x: number;
@@ -19,45 +17,60 @@ interface User {
   position: Position;
 }
 
+const userData: User[] = [
+  {
+    id: "1",
+    name: "Alice Johnson",
+    avatar: "https://randomuser.me/api/portraits/women/1.jpg",
+    position: { x: 10, y: 20 },
+  },
+  {
+    id: "2",
+    name: "Bob Smith",
+    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+    position: { x: 300, y: 50 },
+  },
+  {
+    id: "3",
+    name: "Charlie Davis",
+    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
+    position: { x: 15, y: 35 },
+  },
+  {
+    id: "4",
+    name: "Diana Lopez",
+    avatar: "https://randomuser.me/api/portraits/women/4.jpg",
+    position: { x: 40, y: 60 },
+  },
+  {
+    id: "5",
+    name: "Ethan Wright",
+    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
+    position: { x: 5, y: 10 },
+  },
+];
+
 export default function Space() {
-  const params = useParams();
+  const ws_url =
+    process.env.NEXT_PUBLIC_STATE == "development"
+      ? process.env.NEXT_PUBLIC_PROD_URL
+      : process.env.NEXT_PUBLIC_PROD_WS;
   const { toast } = useToast();
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>(userData);
+
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  // const ws = new WebSocket(ws_url!);
 
-  useEffect(() => {
-    // TODO: Implement WebSocket connection
-    const socket = io("YOUR_WEBSOCKET_SERVER");
+  // const handleMove = (newPosition: Position) => {
+  //   // Implement movement logic with boundaries
+  //   const boundedPosition = {
+  //     x: Math.max(0, Math.min(newPosition.x, window.innerWidth - 50)),
+  //     y: Math.max(0, Math.min(newPosition.y, window.innerHeight - 50)),
+  //   };
 
-    socket.on("connect", () => {
-      console.log("Connected to WebSocket server");
-    });
-
-    socket.on("userMoved", (data: { userId: string; position: Position }) => {
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === data.userId
-            ? { ...user, position: data.position }
-            : user
-        )
-      );
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  const handleMove = (newPosition: Position) => {
-    // Implement movement logic with boundaries
-    const boundedPosition = {
-      x: Math.max(0, Math.min(newPosition.x, window.innerWidth - 50)),
-      y: Math.max(0, Math.min(newPosition.y, window.innerHeight - 50)),
-    };
-
-    setPosition(boundedPosition);
-    // TODO: Emit position to WebSocket server
-  };
+  //   setPosition(boundedPosition);
+  //   // TODO: Emit position to WebSocket server
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted relative">
@@ -83,9 +96,9 @@ export default function Space() {
         <div
           className="absolute inset-0"
           onMouseMove={(e) => {
-            if (e.buttons === 1) {
-              handleMove({ x: e.clientX, y: e.clientY });
-            }
+            // if (e.buttons === 1) {
+            //   handleMove({ x: e.clientX, y: e.clientY });
+            // }
           }}
         >
           {/* Current User Avatar */}
