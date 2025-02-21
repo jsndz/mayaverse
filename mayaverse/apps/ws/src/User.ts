@@ -37,7 +37,7 @@ export class User {
           const spaceId = parsedData.payload.spaceId;
           const token = parsedData.payload.token;
 
-          const userId = (jwt.verify(token, JWT_SECRET) as JwtPayload).userId;
+          const userId = (jwt.verify(token, JWT_SECRET!) as JwtPayload).userId;
           if (!userId) {
             this.ws.close();
             return;
@@ -65,6 +65,7 @@ export class User {
                 x: this.x,
                 y: this.y,
               },
+              id: userId,
               users:
                 RoomManager.getInstance()
                   .rooms.get(spaceId)

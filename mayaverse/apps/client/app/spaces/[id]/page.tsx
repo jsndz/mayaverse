@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect,useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-
+import { useParams } from "next/navigation";
+import Arena from "@/components/Arena";
 interface Position {
   x: number;
   y: number;
@@ -12,66 +13,151 @@ interface Position {
 
 interface User {
   id: string;
-  name: string;
-  avatar: string;
+  name?: string;
+  avatar?: string;
   position: Position;
 }
 
-const userData: User[] = [
-  {
-    id: "1",
-    name: "Alice Johnson",
-    avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-    position: { x: 10, y: 20 },
-  },
-  {
-    id: "2",
-    name: "Bob Smith",
-    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-    position: { x: 300, y: 50 },
-  },
-  {
-    id: "3",
-    name: "Charlie Davis",
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-    position: { x: 15, y: 35 },
-  },
-  {
-    id: "4",
-    name: "Diana Lopez",
-    avatar: "https://randomuser.me/api/portraits/women/4.jpg",
-    position: { x: 40, y: 60 },
-  },
-  {
-    id: "5",
-    name: "Ethan Wright",
-    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-    position: { x: 5, y: 10 },
-  },
-];
-
 export default function Space() {
   const ws_url =
-    process.env.NEXT_PUBLIC_STATE == "development"
+    process.env.NEXT_PUBLIC_STATE === "development"
       ? process.env.NEXT_PUBLIC_PROD_URL
       : process.env.NEXT_PUBLIC_PROD_WS;
+
+  const wsRef = useRef<WebSocket | null>(null);
   const { toast } = useToast();
-  const [users, setUsers] = useState<User[]>(userData);
+  const { id: spaceId } = useParams();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // Use Map instead of an array
+  const [users, setUsers] = useState<Map<string, User>>(new Map());
 
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  // const ws = new WebSocket(ws_url!);
 
-  // const handleMove = (newPosition: Position) => {
-  //   // Implement movement logic with boundaries
-  //   const boundedPosition = {
-  //     x: Math.max(0, Math.min(newPosition.x, window.innerWidth - 50)),
-  //     y: Math.max(0, Math.min(newPosition.y, window.innerHeight - 50)),
-  //   };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-  //   setPosition(boundedPosition);
-  //   // TODO: Emit position to WebSocket server
-  // };
+    wsRef.current = new WebSocket("ws://localhost:3002");
+    wsRef.current.onopen = () => {
+      if (wsRef.current) {
+        wsRef.current.send(
+          JSON.stringify({
+            type: "join",
+            payload: {
+              spaceId,
+              token,
+            },
+          })
+        );
+      }
+    };
 
+    wsRef.current.onmessage = (event) => {
+      const eventType = JSON.parse(event.data);
+      handleWSEvent(eventType);
+    };
+
+    return () => {
+      wsRef.current?.close();
+    };
+  }, []);
+
+  const handleWSEvent = (message: any) => {
+    switch (message.type) {
+      case "space-joined": {
+        setCurrentUser({
+          id: message.payload.id,
+          position: {
+            x: message.payload.spawn.x,
+            y: message.payload.spawn.y,
+          },
+        });
+
+        // Convert users to a Map
+        const newUsers = new Map<string, User>(
+          message.payload.users.map((user: User) => [
+            user.id,
+            {
+              ...user,
+              position: user.position || { x: 0, y: 0 },
+            },
+          ])
+        );
+
+        setUsers(newUsers);
+        break;
+      }
+
+      case "user-joined": {
+        setUsers((prevUsers) => {
+          const newUsers = new Map(prevUsers);
+          newUsers.set(message.payload.userId, {
+            id: message.payload.userId,
+            position: {
+              x: message.payload.x,
+              y: message.payload.y,
+            },
+          });
+          return newUsers;
+        });
+        break;
+      }
+
+      case "movement": {
+        setUsers((prevUsers) => {
+          const newUsers = new Map(prevUsers);
+          const user = newUsers.get(message.payload.userId);
+
+          if (user) {
+            newUsers.set(message.payload.userId, {
+              ...user,
+              position: {
+                x: message.payload.x,
+                y: message.payload.y,
+              },
+            });
+          }
+
+          return newUsers;
+        });
+        break;
+      }
+      case "movement-rejected": {
+        setCurrentUser((prev) =>
+          prev
+            ? {
+                ...prev,
+                x: message.event.x,
+                y: message.event.y,
+              }
+            : prev
+        );
+        break;
+      }
+      case "user-left": {
+        setUsers((prevUsers) => {
+          const newUsers = new Map(prevUsers);
+          newUsers.delete(message.payload.userId);
+          return newUsers;
+        });
+      }
+      default:
+        break;
+    }
+  };
+  const handleMovement = (newX: number, newY: number) => {
+    if (!currentUser) {
+      return;
+    }
+    wsRef.current?.send(
+      JSON.stringify({
+        type: "movement",
+        x: newX,
+        y: newY,
+        userId: currentUser.id,
+      })
+    );
+  };
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted relative">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -79,10 +165,10 @@ export default function Space() {
           <h1 className="text-2xl font-bold">Space Name </h1>
           <div className="flex items-center space-x-4">
             <div className="flex -space-x-2">
-              {users.map((user) => (
+              {Array.from(users.values()).map((user) => (
                 <Avatar key={user.id} className="border-2 border-background">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{user.name[0]}</AvatarFallback>
+                  <AvatarFallback>{user.name}</AvatarFallback>
                 </Avatar>
               ))}
             </div>
@@ -92,47 +178,14 @@ export default function Space() {
       </header>
 
       <main className="relative h-[calc(100vh-73px)] overflow-hidden">
-        {/* Collaboration Space */}
-        <div
-          className="absolute inset-0"
-          onMouseMove={(e) => {
-            // if (e.buttons === 1) {
-            //   handleMove({ x: e.clientX, y: e.clientY });
-            // }
-          }}
-        >
-          {/* Current User Avatar */}
-          <div
-            className="absolute"
-            style={{
-              transform: `translate(${position.x}px, ${position.y}px)`,
-              transition: "transform 0.1s ease-out",
-            }}
-          >
-            <Avatar className="border-2 border-primary">
-              <AvatarImage src="/your-avatar.jpg" alt="You" />
-              <AvatarFallback>You</AvatarFallback>
-            </Avatar>
-          </div>
-
-          {/* Other Users */}
-          {users.map((user) => (
-            <div
-              key={user.id}
-              className="absolute"
-              style={{
-                transform: `translate(${user.position.x}px, ${user.position.y}px)`,
-                transition: "transform 0.1s ease-out",
-              }}
-            >
-              <Avatar className="border-2 border-muted">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{user.name[0]}</AvatarFallback>
-              </Avatar>
-            </div>
-          ))}
-        </div>
+        <Arena currentUser={currentUser} users={Array.from(users.values())} />
       </main>
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 space-x-2">
+        <Button onClick={() => handleMovement(0, -1)}>↑</Button>
+        <Button onClick={() => handleMovement(-1, 0)}>←</Button>
+        <Button onClick={() => handleMovement(1, 0)}>→</Button>
+        <Button onClick={() => handleMovement(0, 1)}>↓</Button>
+      </div>
     </div>
   );
 }
