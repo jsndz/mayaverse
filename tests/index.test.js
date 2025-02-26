@@ -39,7 +39,7 @@ const axios = {
 };
 
 const SERVER_URL = "http://localhost:3000";
-const WS_URL = "ws://localhost:3001";
+const WS_URL = "ws://localhost:3002";
 
 describe("Authentication", () => {
   test("Signup succeeds ", async () => {
