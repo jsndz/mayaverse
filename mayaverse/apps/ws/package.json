@@ -16,8 +16,10 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/ws": "^8.5.12",
     "dotenv": "^16.4.7",
-    "esbuild": "^0.24.0",
     "jsonwebtoken": "^9.0.2",
     "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
   }
 }
