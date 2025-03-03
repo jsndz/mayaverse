@@ -89,6 +89,7 @@ export class User {
           );
           break;
         case "movement":
+          console.log(parsedData)
           const moveX = parsedData.payload.x;
           const moveY = parsedData.payload.y;
           const displacementX = Math.abs(this.x - moveX);

@@ -21,7 +21,7 @@ interface User {
 export default function Space() {
   const ws_url =
     process.env.NEXT_PUBLIC_STATE === "development"
-      ? process.env.NEXT_PUBLIC_PROD_URL
+      ? process.env.NEXT_PUBLIC_DEV_WS
       : process.env.NEXT_PUBLIC_PROD_WS;
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -33,6 +33,7 @@ export default function Space() {
   const [users, setUsers] = useState<Map<string, User>>(new Map());
 
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+console.log("user current",currentUser);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -123,6 +124,8 @@ export default function Space() {
         break;
       }
       case "movement-rejected": {
+        console.log("movement-rejected");
+        
         setCurrentUser((prev) =>
           prev
             ? {
@@ -149,12 +152,15 @@ export default function Space() {
     if (!currentUser) {
       return;
     }
+    
     wsRef.current?.send(
       JSON.stringify({
         type: "movement",
-        x: newX,
-        y: newY,
-        userId: currentUser.id,
+        payload:{
+          x: currentUser.position.x+ newX,
+          y:currentUser.position.y+ newY,
+          userId: currentUser.id,
+        }
       })
     );
   };
