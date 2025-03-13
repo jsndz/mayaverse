@@ -1,91 +1,170 @@
-import { useRef, useEffect } from "react";
+import { User } from "@/lib/types";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
-interface Position {
-  x: number;
-  y: number;
+interface ArenaProps {
+  spaceDimension: string;
+  spaceId: string;
 }
+const ws_url =
+  process.env.NEXT_PUBLIC_STATE === "development"
+    ? process.env.NEXT_PUBLIC_DEV_WS
+    : process.env.NEXT_PUBLIC_PROD_WS;
+const Arena: React.FC<ArenaProps> = ({ spaceDimension, spaceId }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const wsref = useRef<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-interface User {
-  id: string;
-  name?: string;
-  avatar?: string;
-  position: Position;
-}
-interface CanvasProps {
-  currentUser: User | null;
-  users: User[];
-}
+  const [users, setUsers] = useState<Map<string, User>>(new Map());
 
-const Arena: React.FC<CanvasProps> = ({ currentUser, users }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const dimension = useMemo(() => {
+    const [width, height] = spaceDimension.split("x").map(Number);
+    return { width: width || 0, height: height || 0 };
+  }, [spaceDimension]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (ws_url) wsref.current = new WebSocket(ws_url);
+    wsref.current.onopen = () => {
+      wsref.current.send(
+        JSON.stringify({
+          type: "join",
+          payload: {
+            spaceId: spaceId,
+            token: token,
+          },
+        })
+      );
+    };
+    wsref.current.onmessage = (event: any) => {
+      const message = JSON.parse(event.data);
+      handleWSEvent(message);
+    };
+
+    return () => {
+      if (wsref.current) {
+        wsref.current.close();
+      }
+    };
+  }, []);
+
+  const handleWSEvent = (message: any) => {
+    switch (message.type) {
+      case "space-joined": {
+        setCurrentUser({
+          id: message.payload.id,
+          position: {
+            x: message.payload.spawn.x,
+            y: message.payload.spawn.y,
+          },
+        });
+
+        const newUsers = new Map<string, User>(
+          message.payload.users.map((user: User) => [
+            user.id,
+            {
+              ...user,
+              position: user.position || { x: 0, y: 0 },
+            },
+          ])
+        );
+
+        setUsers(newUsers);
+        break;
+      }
+
+      case "user-joined": {
+        setUsers((prevUsers) => {
+          const newUsers = new Map(prevUsers);
+          newUsers.set(message.payload.userId, {
+            id: message.payload.userId,
+            position: {
+              x: message.payload.x,
+              y: message.payload.y,
+            },
+          });
+          return newUsers;
+        });
+        break;
+      }
+
+      case "movement": {
+        setUsers((prevUsers) => {
+          const newUsers = new Map(prevUsers);
+          const user = newUsers.get(message.payload.userId);
+
+          if (user) {
+            newUsers.set(message.payload.userId, {
+              ...user,
+              position: {
+                x: message.payload.x,
+                y: message.payload.y,
+              },
+            });
+          }
+
+          return newUsers;
+        });
+        break;
+      }
+      case "movement-rejected": {
+        console.log("movement-rejected");
+
+        setCurrentUser((prev) =>
+          prev
+            ? {
+                ...prev,
+                x: message.event.x,
+                y: message.event.y,
+              }
+            : prev
+        );
+        break;
+      }
+      case "user-left": {
+        setUsers((prevUsers) => {
+          const newUsers = new Map(prevUsers);
+          newUsers.delete(message.payload.userId);
+          return newUsers;
+        });
+      }
+      default:
+        break;
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = window.innerWidth - 20;
-    canvas.height = window.innerHeight - 20;
+    canvas.width = dimension.width;
+    canvas.height = dimension.height;
 
-    const drawGrid = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "#ddd";
-      ctx.lineWidth = 1;
-
-      for (let i = 0; i < canvas.width; i += 50) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, canvas.height);
-        ctx.stroke();
-      }
-      for (let i = 0; i < canvas.height; i += 50) {
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(canvas.width, i);
-        ctx.stroke();
-      }
-    };
-
-    const drawUser = (user: User | null, label: string, color: string) => {
-      if (
-        !user ||
-        user.position.x === undefined ||
-        user.position.y === undefined
-      )
-        return;
-
-      const x = user.position.x * 50;
-      const y = user.position.y * 50;
-
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (currentUser) {
       ctx.beginPath();
-      ctx.arc(x + 3, y + 3, 22, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      ctx.arc(
+        currentUser.position.x,
+        currentUser.position.y,
+        5,
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = "red";
       ctx.fill();
+    }
 
+    users.forEach((user) => {
       ctx.beginPath();
-      ctx.arc(x, y, 20, 0, Math.PI * 2);
-      ctx.fillStyle = color;
+      ctx.arc(user.position.x, user.position.y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "blue";
       ctx.fill();
-      ctx.strokeStyle = "#222";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.fillStyle = "#000";
-      ctx.font = "14px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText(label, x, y + 35);
-    };
-
-    const render = () => {
-      drawGrid();
-      if (currentUser) drawUser(currentUser, "You", "#FF6B6B");
-      users.forEach((user) => drawUser(user, `User ${user.id}`, "#4ECDC4"));
-    };
-
-    requestAnimationFrame(render);
-  }, [currentUser, users]);
-
+    });
+  }, [dimension, currentUser, users]);
+  console.log(currentUser);
+  console.log(users);
   return <canvas ref={canvasRef} style={{ border: "1px solid black" }} />;
 };
 

@@ -15,9 +15,9 @@
   "devDependencies": {
     "@types/json5": "^0.0.30",
     "@types/node": "^22.13.8",
-    "prisma": "^6.3.0"
+    "prisma": "^6.4.1"
   },
   "dependencies": {
-    "@prisma/client": "^6.3.0"
+    "@prisma/client": "^6.4.1"
   }
 }

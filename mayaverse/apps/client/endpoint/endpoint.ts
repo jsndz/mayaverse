@@ -141,10 +141,23 @@ export const getAllSpaces = async (token: string) => {
       headers: { authorization: `Bearer ${token}` },
     });
 
-    console.log(res.status);
     return res.data.spaces;
   } catch (error) {
     console.error("Failed to fetch spaces:", error);
+    throw error;
+  }
+};
+
+export const getSpaceData = async (token: string, id: string) => {
+  try {
+    const res = await axios.get(`${url}/space/${id}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch space:", error);
     throw error;
   }
 };

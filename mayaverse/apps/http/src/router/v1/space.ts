@@ -69,6 +69,7 @@ router.get("/:spaceId", async (req, res) => {
     })),
   });
 });
+
 router.post("/", UserMiddleware, async (req, res) => {
   const parsedData = createSpaceSchema.safeParse(req.body);
   if (!parsedData.success) {
