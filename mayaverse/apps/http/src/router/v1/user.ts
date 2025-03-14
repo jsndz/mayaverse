@@ -46,6 +46,7 @@ router.get("/metadata/bulk", async (req, res) => {
     select: {
       avatar: true,
       id: true,
+      username: true,
     },
   });
 
@@ -53,7 +54,29 @@ router.get("/metadata/bulk", async (req, res) => {
     avatars: metadata.map((m) => ({
       userId: m.id,
       avatarId: m.avatar?.imageUrl,
+      userName: m.username,
     })),
+  });
+});
+
+router.get("/metadata/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  const metadata = await client.user.findFirst({
+    where: {
+      id: userId,
+    },
+    select: {
+      avatar: true,
+      id: true,
+      username: true,
+    },
+  });
+
+  res.status(200).json({
+    avatar: {
+      name: metadata?.username,
+      avatar: metadata?.avatar?.imageUrl,
+    },
   });
 });
 

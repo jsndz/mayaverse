@@ -1,3 +1,4 @@
+import { getUsersMeta } from "@/endpoint/endpoint";
 import { User } from "@/lib/types";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
@@ -20,9 +21,13 @@ const Arena: React.FC<ArenaProps> = ({ spaceDimension, spaceId }) => {
     const [width, height] = spaceDimension.split("x").map(Number);
     return { width: width || 0, height: height || 0 };
   }, [spaceDimension]);
+  const token = localStorage.getItem("token");
+  async function getUserdata(users: string) {
+    const userData = await getUsersMeta(token!, users);
+    return userData;
+  }
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (ws_url) wsref.current = new WebSocket(ws_url);
     wsref.current.onopen = () => {
       wsref.current.send(
@@ -73,17 +78,30 @@ const Arena: React.FC<ArenaProps> = ({ spaceDimension, spaceId }) => {
       }
 
       case "user-joined": {
-        setUsers((prevUsers) => {
-          const newUsers = new Map(prevUsers);
-          newUsers.set(message.payload.userId, {
-            id: message.payload.userId,
-            position: {
-              x: message.payload.x,
-              y: message.payload.y,
-            },
-          });
-          return newUsers;
-        });
+        const fetchUserData = async () => {
+          try {
+            const userData = await getUserdata(message.payload.userId);
+
+            setUsers((prevUsers) => {
+              const newUsers = new Map(prevUsers);
+              newUsers.set(message.payload.userId, {
+                id: message.payload.userId,
+                avatar: userData.avatar,
+                name: userData.name,
+                position: {
+                  x: message.payload.x,
+                  y: message.payload.y,
+                },
+              });
+              return newUsers;
+            });
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          }
+        };
+
+        fetchUserData();
+
         break;
       }
 
@@ -155,10 +173,16 @@ const Arena: React.FC<ArenaProps> = ({ spaceDimension, spaceId }) => {
     }
 
     users.forEach((user) => {
-      ctx.beginPath();
-      ctx.arc(user.position.x, user.position.y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = "blue";
-      ctx.fill();
+      const img = new Image();
+      img.src = user.avatar || "";
+      img.alt = user.name || "X";
+      img.onload = () => {
+        ctx.drawImage(img, user.position.x - 15, user.position.y - 15, 30, 30); // Draw avatar (size: 30x30)
+        ctx.fillStyle = "white";
+        ctx.font = "12px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(user.name!, user.position.x, user.position.y + 25); // Show name below avatar
+      };
     });
   }, [dimension, currentUser, users]);
 

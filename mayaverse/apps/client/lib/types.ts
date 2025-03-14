@@ -24,6 +24,7 @@ interface Position {
 }
 export interface User {
   id: string;
+
   name?: string;
   avatar?: string;
   position: Position;
