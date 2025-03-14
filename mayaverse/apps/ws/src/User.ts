@@ -70,7 +70,8 @@ export class User {
                 RoomManager.getInstance()
                   .rooms.get(spaceId)
                   ?.filter((x) => x.id !== this.id)
-                  ?.map((u) => ({ id: u.id })) ?? [],
+                  ?.map((u) => ({ id: u.id, position: { x: u.x, y: u.y } })) ??
+                [],
             },
           });
 
@@ -89,7 +90,6 @@ export class User {
           );
           break;
         case "movement":
-          console.log(parsedData)
           const moveX = parsedData.payload.x;
           const moveY = parsedData.payload.y;
           const displacementX = Math.abs(this.x - moveX);

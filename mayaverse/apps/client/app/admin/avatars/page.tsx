@@ -61,7 +61,6 @@ export default function AdminAvatars() {
         if (res && Array.isArray(res.avatars)) {
           setAvatars(res.avatars);
         }
-        console.log(res);
       } catch (error) {
         console.error("Error fetching avatars:", error);
       }

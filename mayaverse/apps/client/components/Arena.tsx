@@ -107,8 +107,6 @@ const Arena: React.FC<ArenaProps> = ({ spaceDimension, spaceId }) => {
         break;
       }
       case "movement-rejected": {
-        console.log("movement-rejected");
-
         setCurrentUser((prev) =>
           prev
             ? {
@@ -163,8 +161,7 @@ const Arena: React.FC<ArenaProps> = ({ spaceDimension, spaceId }) => {
       ctx.fill();
     });
   }, [dimension, currentUser, users]);
-  console.log(currentUser);
-  console.log(users);
+
   return <canvas ref={canvasRef} style={{ border: "1px solid black" }} />;
 };
 

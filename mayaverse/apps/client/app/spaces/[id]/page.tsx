@@ -26,7 +26,6 @@ export default function Space() {
 
     getSpace();
   }, []);
-  console.log(spaceDimension);
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted relative">
       {spaceDimension ? (

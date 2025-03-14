@@ -42,7 +42,6 @@ export default function SignIn() {
     try {
       const res = await signin(data.username, data.password);
       localStorage.setItem("token", res?.data.token);
-      console.log(res?.data.token);
 
       toast({
         title: "Success",

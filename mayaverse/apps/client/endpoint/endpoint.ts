@@ -47,7 +47,6 @@ export const signup = async (username: string, password: string) => {
 export const getAvatars = async () => {
   try {
     const res = await axios.get(`${url}/avatars`);
-    console.log(res);
 
     return res.data;
   } catch (error) {
@@ -63,7 +62,6 @@ export const updateUserMetadata = async (token: string, avatarId: string) => {
       { avatarId },
       { headers: { authorization: `Bearer ${token}` } }
     );
-    console.log(res.status);
 
     return res;
   } catch (error) {
@@ -83,7 +81,6 @@ export const createAvatar = async (
       { imageUrl, name },
       { headers: { authorization: `Bearer ${token}` } }
     );
-    console.log(res.status);
 
     return res;
   } catch (error) {
@@ -94,8 +91,6 @@ export const createAvatar = async (
 
 export const deleteAvatar = async (token: string, id: string) => {
   try {
-    console.log(token, id);
-
     const res = await axios.delete(`${url}/admin/avatar`, {
       data: {
         id,
@@ -105,7 +100,6 @@ export const deleteAvatar = async (token: string, id: string) => {
         authorization: `Bearer ${token}`,
       },
     });
-    console.log(res.status);
 
     return res;
   } catch (error) {
@@ -127,7 +121,6 @@ export const createSpace = async (
       { headers: { authorization: `Bearer ${token}` } }
     );
 
-    console.log(res.status);
     return res.data.spaceId;
   } catch (error) {
     console.error(error);
@@ -154,7 +147,6 @@ export const getSpaceData = async (token: string, id: string) => {
       headers: { authorization: `Bearer ${token}` },
     });
 
-    console.log(res.data);
     return res.data;
   } catch (error) {
     console.error("Failed to fetch space:", error);

@@ -46,14 +46,12 @@ export default function CreateSpace() {
     try {
       const token = localStorage.getItem("token");
 
-      console.log("Space creation data:", data);
       const id = await createSpace(token!, data.name, data.dimension);
 
       toast({
         title: "Success",
         description: "Space created successfully!",
       });
-      console.log(id);
 
       router.push(`/spaces/${id}`);
     } catch (error) {
