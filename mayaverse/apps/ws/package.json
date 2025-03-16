@@ -13,8 +13,10 @@
   "description": "",
   "dependencies": {
     "@repo/db": "*",
+    "@types/axios": "^0.14.4",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/ws": "^8.5.12",
+    "axios": "^1.8.3",
     "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2",
     "ws": "^8.18.0"

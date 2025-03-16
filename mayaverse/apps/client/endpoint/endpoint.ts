@@ -156,7 +156,20 @@ export const getSpaceData = async (token: string, id: string) => {
 
 export const getUsersMeta = async (token: string, userId: string) => {
   try {
-    const res = await axios.get(`${url}/user//metadata/${userId}`, {
+    const res = await axios.get(`${url}/user/metadata/${userId}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    return res.data.avatar;
+  } catch (error) {
+    console.error("Failed to get users metadata:", error);
+    throw error;
+  }
+};
+
+export const getUsersMetaBulk = async (token: string, userIds: string) => {
+  try {
+    const res = await axios.get(`${url}/user/metadata/bulk/${userIds}`, {
       headers: { authorization: `Bearer ${token}` },
     });
 

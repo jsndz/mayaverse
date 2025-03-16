@@ -34,7 +34,6 @@ router.post("/metadata", UserMiddleware, async (req, res) => {
 });
 router.get("/metadata/bulk", async (req, res) => {
   const userIds = (req.query.ids ?? "[]") as string;
-
   const ids = userIds.slice(1, userIds?.length - 1).split(",");
 
   const metadata = await client.user.findMany({
@@ -54,7 +53,7 @@ router.get("/metadata/bulk", async (req, res) => {
     avatars: metadata.map((m) => ({
       userId: m.id,
       avatarId: m.avatar?.imageUrl,
-      userName: m.username,
+      name: m.username,
     })),
   });
 });

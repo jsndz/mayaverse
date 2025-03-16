@@ -5,6 +5,7 @@ import { RoomManager } from "./RoomManager";
 import { OutgoingMessage } from "./types";
 import client from "@repo/db/client";
 import { JWT_SECRET } from "./config";
+import { getUsersMeta } from "./utils";
 function generateRandomNumber(digits: number) {
   let string = "";
   const characters =
@@ -58,6 +59,7 @@ export class User {
 
           this.x = Math.floor(Math.random() * space?.width);
           this.y = Math.floor(Math.random() * space?.height);
+
           this.send({
             type: "space-joined",
             payload: {
@@ -66,12 +68,20 @@ export class User {
                 y: this.y,
               },
               id: userId,
-              users:
+              users: await Promise.all(
                 RoomManager.getInstance()
                   .rooms.get(spaceId)
                   ?.filter((x) => x.id !== this.id)
-                  ?.map((u) => ({ id: u.id, position: { x: u.x, y: u.y } })) ??
-                [],
+                  ?.map(async (u) => {
+                    const userMeta = await getUsersMeta(token, u.userId!);
+                    return {
+                      id: u.userId,
+                      name: userMeta.name,
+                      avatar: userMeta.avatar,
+                      position: { x: u.x, y: u.y },
+                    };
+                  }) ?? []
+              ),
             },
           });
 
