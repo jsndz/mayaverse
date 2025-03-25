@@ -8,10 +8,17 @@ import { useParams } from "next/navigation";
 import Arena from "@/components/Arena";
 import { getSpaceData } from "@/endpoint/endpoint";
 import { SpaceData } from "@/lib/types";
+import Chat from "@/components/Chat";
+
+enum Page {
+  "arena",
+  "chat",
+}
 
 export default function Space() {
   const params = useParams<{ id: string }>();
   const [spaceDimension, setSpaceDimension] = useState<string>();
+  const [page, setPage] = useState<Page>();
   const ws_url =
     process.env.NEXT_PUBLIC_STATE === "development"
       ? process.env.NEXT_PUBLIC_DEV_WS
@@ -26,11 +33,15 @@ export default function Space() {
 
     getSpace();
   }, []);
+  if (!spaceDimension) return null;
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted relative">
-      {spaceDimension ? (
-        <Arena spaceDimension={spaceDimension} spaceId={params.id}></Arena>
-      ) : null}
+      {page === Page.arena && (
+        <Arena spaceDimension={spaceDimension} spaceId={params.id} />
+      )}
+      {page === Page.chat && (
+        <Chat spaceDimension={spaceDimension} spaceId={params.id} />
+      )}
     </div>
   );
 }
