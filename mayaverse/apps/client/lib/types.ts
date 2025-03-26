@@ -34,3 +34,10 @@ export interface CanvasSize {
   width: number;
   height: number;
 }
+
+export enum Page {
+  "arena",
+  "chat",
+  "settings",
+  "members",
+}

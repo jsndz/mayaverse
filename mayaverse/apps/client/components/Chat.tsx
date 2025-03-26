@@ -1,330 +1,260 @@
-import React from "react";
-interface ArenaProps {
+import React, { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { IconSend, IconPaperclip, IconMoodSmile, IconSearch, IconDotsVertical, IconPhone, IconVideo } from "@tabler/icons-react";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+interface ChatProps {
   spaceDimension: string;
   spaceId: string;
 }
-const Chat: React.FC<ArenaProps> = ({ spaceDimension, spaceId }) => {
+
+interface Message {
+  id: string;
+  text: string;
+  isMe: boolean;
+  timestamp: Date;
+  status: 'sent' | 'delivered' | 'read';
+}
+
+interface Conversation {
+  id: string;
+  name: string;
+  avatar: string;
+  lastMessage: string;
+  timestamp: Date;
+  unread: number;
+  online: boolean;
+}
+
+const Chat: React.FC<ChatProps> = ({ spaceDimension, spaceId }) => {
+  const [selectedConversation, setSelectedConversation] = useState<string>("Henry Boyd");
+  const [messages, setMessages] = useState<Message[]>([
+    { id: "1", text: "Hey How are you today?", isMe: false, timestamp: new Date(), status: 'read' },
+    { id: "2", text: "I'm doing great, thanks for asking!", isMe: true, timestamp: new Date(), status: 'read' },
+    { id: "3", text: "How's the project going?", isMe: false, timestamp: new Date(), status: 'read' },
+    { id: "4", text: "It's going well, we're making good progress", isMe: true, timestamp: new Date(), status: 'delivered' },
+  ]);
+
+  const conversations: Conversation[] = [
+    { id: "1", name: "Henry Boyd", avatar: "H", lastMessage: "Hey How are you today?", timestamp: new Date(), unread: 0, online: true },
+    { id: "2", name: "Marta Curtis", avatar: "M", lastMessage: "Can you review the latest changes?", timestamp: new Date(), unread: 2, online: false },
+    { id: "3", name: "Philip Tucker", avatar: "P", lastMessage: "Great work on the new feature!", timestamp: new Date(), unread: 0, online: true },
+    { id: "4", name: "Christine Reid", avatar: "C", lastMessage: "Let's schedule a meeting", timestamp: new Date(), unread: 1, online: false },
+  ];
+
   return (
-    <div className="flex h-screen antialiased text-gray-800">
-      <div className="flex flex-row h-full w-full overflow-x-hidden">
-        <div className="flex flex-col py-8 pl-6 pr-2 w-64 bg-white flex-shrink-0">
-          <div className="flex flex-row items-center justify-center h-12 w-full">
-            <div className="flex items-center justify-center rounded-2xl text-indigo-700 bg-indigo-100 h-10 w-10">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                />
-              </svg>
-            </div>
-            <div className="ml-2 font-bold text-2xl">Mayajal</div>
+    <div className="flex h-[calc(100vh-4rem)] bg-background">
+      {/* Sidebar */}
+      <div className="w-80 border-r border-border flex flex-col">
+        {/* Search Bar */}
+        <div className="p-4 border-b border-border">
+          <div className="relative">
+            <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search conversations..."
+              className="pl-9"
+            />
           </div>
-          <div className="flex flex-col items-center bg-indigo-100 border border-gray-200 mt-4 w-full py-6 px-4 rounded-lg">
-            <div className="h-20 w-20 rounded-full border overflow-hidden">
-              <img
-                src="https://avatars3.githubusercontent.com/u/2763884?s=128"
-                alt="Avatar"
-                className="h-full w-full"
-              />
-            </div>
-            <div className="text-sm font-semibold mt-2">jsndz</div>
-            <div className="text-xs text-gray-500">Lead UI/UX Designer</div>
-            <div className="flex flex-row items-center mt-3">
-              <div className="flex flex-col justify-center h-4 w-8 bg-indigo-500 rounded-full">
-                <div className="h-3 w-3 bg-white rounded-full self-end mr-1" />
+        </div>
+
+        {/* User Profile */}
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Avatar>
+                <AvatarImage src="https://avatars3.githubusercontent.com/u/2763884?s=128" />
+                <AvatarFallback>JD</AvatarFallback>
+              </Avatar>
+              <div>
+                <h2 className="font-semibold">jsndz</h2>
+                <p className="text-sm text-muted-foreground">Lead UI/UX Designer</p>
               </div>
-              <div className="leading-none ml-1 text-xs">Active</div>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <IconDotsVertical className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Profile Settings</DropdownMenuItem>
+                <DropdownMenuItem>Notifications</DropdownMenuItem>
+                <DropdownMenuItem>Sign Out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        {/* Conversations List */}
+        <ScrollArea className="flex-1">
+          <div className="p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">Conversations</h3>
+              <Badge variant="secondary" className="ml-auto">4</Badge>
+            </div>
+            <div className="space-y-1">
+              {conversations.map((conv) => (
+                <Button
+                  key={conv.id}
+                  variant={selectedConversation === conv.name ? "secondary" : "ghost"}
+                  className="w-full justify-start space-x-3 relative"
+                  onClick={() => setSelectedConversation(conv.name)}
+                >
+                  <div className="relative">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback>{conv.avatar}</AvatarFallback>
+                    </Avatar>
+                    {conv.online && (
+                      <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-background" />
+                    )}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{conv.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {conv.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground truncate max-w-[150px]">{conv.lastMessage}</span>
+                      {conv.unread > 0 && (
+                        <Badge variant="default" className="ml-2">{conv.unread}</Badge>
+                      )}
+                    </div>
+                  </div>
+                </Button>
+              ))}
             </div>
           </div>
-          <div className="flex flex-col mt-8">
-            <div className="flex flex-row items-center justify-between text-xs">
-              <span className="font-bold">Active Conversations</span>
-              <span className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">
-                4
-              </span>
+        </ScrollArea>
+      </div>
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Chat Header */}
+        <div className="border-b border-border p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Avatar>
+                <AvatarFallback>H</AvatarFallback>
+              </Avatar>
+              <div>
+                <h2 className="font-semibold">Henry Boyd</h2>
+                <p className="text-sm text-muted-foreground">Online</p>
+              </div>
             </div>
-            <div className="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
-              <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                <div className="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">
-                  H
-                </div>
-                <div className="ml-2 text-sm font-semibold">Henry Boyd</div>
-              </button>
-              <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                <div className="flex items-center justify-center h-8 w-8 bg-gray-200 rounded-full">
-                  M
-                </div>
-                <div className="ml-2 text-sm font-semibold">Marta Curtis</div>
-                <div className="flex items-center justify-center ml-auto text-xs text-white bg-red-500 h-4 w-4 rounded leading-none">
-                  2
-                </div>
-              </button>
-              <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                <div className="flex items-center justify-center h-8 w-8 bg-orange-200 rounded-full">
-                  P
-                </div>
-                <div className="ml-2 text-sm font-semibold">Philip Tucker</div>
-              </button>
-              <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                <div className="flex items-center justify-center h-8 w-8 bg-pink-200 rounded-full">
-                  C
-                </div>
-                <div className="ml-2 text-sm font-semibold">Christine Reid</div>
-              </button>
-              <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                <div className="flex items-center justify-center h-8 w-8 bg-purple-200 rounded-full">
-                  J
-                </div>
-                <div className="ml-2 text-sm font-semibold">Jerry Guzman</div>
-              </button>
-            </div>
-            <div className="flex flex-row items-center justify-between text-xs mt-6">
-              <span className="font-bold">Archivied</span>
-              <span className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">
-                7
-              </span>
-            </div>
-            <div className="flex flex-col space-y-1 mt-4 -mx-2">
-              <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-                <div className="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">
-                  H
-                </div>
-                <div className="ml-2 text-sm font-semibold">Henry Boyd</div>
-              </button>
+            <div className="flex items-center space-x-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <IconPhone className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Call</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <IconVideo className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Video Call</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>
-        <div className="flex flex-col flex-auto h-full p-6">
-          <div className="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
-            <div className="flex flex-col h-full overflow-x-auto mb-4">
-              <div className="flex flex-col h-full">
-                <div className="grid grid-cols-12 gap-y-2">
-                  <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                    <div className="flex flex-row items-center">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                        A
-                      </div>
-                      <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                        <div>Hey How are you today?</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                    <div className="flex flex-row items-center">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                        A
-                      </div>
-                      <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                        <div>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit. Vel ipsa commodi illum saepe numquam maxime
-                          asperiores voluptate sit, minima perspiciatis.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-start-6 col-end-13 p-3 rounded-lg">
-                    <div className="flex items-center justify-start flex-row-reverse">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                        A
-                      </div>
-                      <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                        <div>I'm ok what about you?</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-start-6 col-end-13 p-3 rounded-lg">
-                    <div className="flex items-center justify-start flex-row-reverse">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                        A
-                      </div>
-                      <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                        <div>
-                          Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                    <div className="flex flex-row items-center">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                        A
-                      </div>
-                      <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                        <div>Lorem ipsum dolor sit amet !</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-start-6 col-end-13 p-3 rounded-lg">
-                    <div className="flex items-center justify-start flex-row-reverse">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                        A
-                      </div>
-                      <div className="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                        <div>
-                          Lorem ipsum dolor sit, amet consectetur adipisicing. ?
-                        </div>
-                        <div className="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-gray-500">
-                          Seen
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                    <div className="flex flex-row items-center">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                        A
-                      </div>
-                      <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                        <div>
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Perspiciatis, in.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-start-1 col-end-8 p-3 rounded-lg">
-                    <div className="flex flex-row items-center">
-                      <div className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0">
-                        A
-                      </div>
-                      <div className="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                        <div className="flex flex-row items-center">
-                          <button className="flex items-center justify-center bg-indigo-600 hover:bg-indigo-800 rounded-full h-8 w-10">
-                            <svg
-                              className="w-6 h-6 text-white"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="1.5"
-                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="1.5"
-                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                              />
-                            </svg>
-                          </button>
-                          <div className="flex flex-row items-center space-x-px ml-4">
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-4 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-8 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-8 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-10 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-10 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-12 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-10 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-6 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-5 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-4 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-3 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-10 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-10 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-8 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-8 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-1 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-1 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-8 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-8 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-2 w-1 bg-gray-500 rounded-lg" />
-                            <div className="h-4 w-1 bg-gray-500 rounded-lg" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
-              <div>
-                <button className="flex items-center justify-center text-gray-400 hover:text-gray-600">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
+
+        {/* Messages */}
+        <ScrollArea className="flex-1">
+          <div className="p-4 space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}
+              >
+                <div className="flex flex-col max-w-[70%]">
+                  <div
+                    className={`rounded-lg p-3 ${
+                      message.isMe
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <div className="flex-grow ml-4">
-                <div className="relative w-full">
-                  <input
-                    type="text"
-                    className="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
-                  />
-                  <button className="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </button>
+                    <p className="text-sm">{message.text}</p>
+                    <div className="flex items-center justify-end space-x-1 mt-1">
+                      <span className="text-xs opacity-70">
+                        {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                      {message.isMe && (
+                        <span className="text-xs">
+                          {message.status === 'read' ? '✓✓' : message.status === 'delivered' ? '✓✓' : '✓'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="ml-4">
-                <button className="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0">
-                  <span>Send</span>
-                  <span className="ml-2">
-                    <svg
-                      className="w-4 h-4 transform rotate-45 -mt-px"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                      />
-                    </svg>
-                  </span>
-                </button>
+            ))}
+            {/* Typing Indicator */}
+            <div className="flex justify-start">
+              <div className="bg-muted rounded-lg p-3">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
               </div>
             </div>
+          </div>
+        </ScrollArea>
+
+        {/* Message Input */}
+        <div className="border-t border-border p-4">
+          <div className="flex items-center space-x-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <IconPaperclip className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Attach file</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Input
+              placeholder="Type a message..."
+              className="flex-1"
+            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <IconMoodSmile className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Add emoji</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="icon">
+                    <IconSend className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Send message</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
