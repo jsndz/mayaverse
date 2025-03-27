@@ -35,6 +35,12 @@ export interface CanvasSize {
   height: number;
 }
 
+export interface Links {
+  title: string;
+  icon: React.ReactNode;
+  href: Page;
+}
+
 export enum Page {
   "arena",
   "chat",
