@@ -38,7 +38,7 @@ const axios = {
   },
 };
 
-const SERVER_URL = "http://localhost:3000";
+const SERVER_URL = "http://localhost:3001";
 const WS_URL = "ws://localhost:3002";
 
 describe("Authentication", () => {
@@ -1096,6 +1096,22 @@ describe("Websocket", () => {
     expect(message.type).toBe("movement");
     expect(message.payload.x).toBe(adminX + 1);
     expect(message.payload.y).toBe(adminY);
+  });
+  test("sender sends message and it is recieved", async () => {
+    ws1.send(
+      JSON.stringify({
+        type: "chat",
+        payload: {
+          message: "hello",
+          recieverId: userId,
+        },
+      })
+    );
+    const message = await waitForAndPopLatest(ws2Messages);
+    expect(message.type).toBe("chat-message");
+    console.log(message);
+
+    expect(message.payload.message).toBe("hello");
   });
   test("if user leaves ithers should be informed", async () => {
     ws1.close();

@@ -9,46 +9,11 @@ import { getSpaceData } from "@/endpoint/endpoint";
 import { Page, SpaceData } from "@/lib/types";
 import Chat from "@/components/Chat";
 import { FloatingDock } from "@/components/ui/floating-dock";
-import {
-  IconHome,
-  IconSettings,
-  IconTerminal,
-  IconUsers,
-} from "@tabler/icons-react";
+
 import { Loader } from "lucide-react";
 import { User } from "@/lib/types";
 import { handleWSEvent } from "@/lib/websocket";
-
-const links = [
-  {
-    title: "Arena",
-    icon: (
-      <IconHome className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-    ),
-    href: Page.arena,
-  },
-  {
-    title: "Chat",
-    icon: (
-      <IconTerminal className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-    ),
-    href: Page.chat,
-  },
-  {
-    title: "Members",
-    icon: (
-      <IconUsers className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-    ),
-    href: Page.members,
-  },
-  {
-    title: "Settings",
-    icon: (
-      <IconSettings className="h-full w-full text-neutral-500 dark:text-neutral-300" />
-    ),
-    href: Page.settings,
-  },
-];
+import { links } from "@/components/constants";
 
 export default function Space() {
   const params = useParams<{ id: string }>();

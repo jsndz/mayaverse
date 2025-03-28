@@ -21,7 +21,7 @@ export class User {
   private spaceId?: string;
   private x: number;
   private y: number;
-  private userId?: string;
+  public userId?: string;
   private ws: WebSocket;
   constructor(ws: WebSocket) {
     this.id = generateRandomNumber(10);
@@ -56,7 +56,6 @@ export class User {
           }
           this.spaceId = spaceId;
           RoomManager.getInstance().addUser(spaceId, this);
-
           this.x = Math.floor(Math.random() * space?.width);
           this.y = Math.floor(Math.random() * space?.height);
 
@@ -131,6 +130,26 @@ export class User {
               y: this.y,
             },
           });
+          break;
+
+        case "chat":
+          console.log("hello");
+          console.log(parsedData.payload);
+
+          const recieverId = parsedData.payload.recieverId;
+          const msg = parsedData.payload.message;
+
+          RoomManager.getInstance().chat(
+            {
+              type: "chat-message",
+              payload: {
+                message: msg,
+                sender: this.id,
+              },
+            },
+            this.spaceId!,
+            recieverId
+          );
       }
     });
   }

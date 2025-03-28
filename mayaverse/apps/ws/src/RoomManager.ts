@@ -40,4 +40,14 @@ export class RoomManager {
       }
     });
   }
+
+  public chat(message: OutgoingMessage, roomId: string, recieverId: string) {
+    if (recieverId) {
+      console.log(this.rooms);
+      this.rooms
+        .get(roomId)
+        ?.find((u) => u.userId == recieverId)
+        ?.send(message);
+    }
+  }
 }
