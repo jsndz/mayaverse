@@ -106,6 +106,13 @@ export default function Space() {
       </div>
     );
   }
+  if (!currentUser) {
+    return (
+      <div>
+        <p>Log in</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -128,7 +135,7 @@ export default function Space() {
             />
           )}
           {page === Page.chat && (
-            <Chat spaceDimension={spaceDimension} spaceId={params.id} />
+            <Chat spaceId={params.id} users={users} currentUser={currentUser} />
           )}
           {/* {page === Page.members && <SpaceM spaceId={params.id} />}
               {page === Page.settings && <SpaceSettings spaceId={params.id} />} */}

@@ -2,16 +2,36 @@ import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { IconSend, IconPaperclip, IconMoodSmile, IconSearch, IconDotsVertical, IconPhone, IconVideo } from "@tabler/icons-react";
+import {
+  IconSend,
+  IconPaperclip,
+  IconMoodSmile,
+  IconSearch,
+  IconDotsVertical,
+  IconPhone,
+  IconVideo,
+} from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User } from "@/lib/types";
 
 interface ChatProps {
-  spaceDimension: string;
   spaceId: string;
+  users: Map<string, User>;
+  currentUser: User;
 }
 
 interface Message {
@@ -19,34 +39,41 @@ interface Message {
   text: string;
   isMe: boolean;
   timestamp: Date;
-  status: 'sent' | 'delivered' | 'read';
+  status: "sent" | "delivered" | "read";
 }
 
-interface Conversation {
-  id: string;
-  name: string;
-  avatar: string;
-  lastMessage: string;
-  timestamp: Date;
-  unread: number;
-  online: boolean;
-}
-
-const Chat: React.FC<ChatProps> = ({ spaceDimension, spaceId }) => {
-  const [selectedConversation, setSelectedConversation] = useState<string>("Henry Boyd");
+const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
+  const [selectedConversation, setSelectedConversation] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([
-    { id: "1", text: "Hey How are you today?", isMe: false, timestamp: new Date(), status: 'read' },
-    { id: "2", text: "I'm doing great, thanks for asking!", isMe: true, timestamp: new Date(), status: 'read' },
-    { id: "3", text: "How's the project going?", isMe: false, timestamp: new Date(), status: 'read' },
-    { id: "4", text: "It's going well, we're making good progress", isMe: true, timestamp: new Date(), status: 'delivered' },
+    {
+      id: "1",
+      text: "Hey How are you today?",
+      isMe: false,
+      timestamp: new Date(),
+      status: "read",
+    },
+    {
+      id: "2",
+      text: "I'm doing great, thanks for asking!",
+      isMe: true,
+      timestamp: new Date(),
+      status: "read",
+    },
+    {
+      id: "3",
+      text: "How's the project going?",
+      isMe: false,
+      timestamp: new Date(),
+      status: "read",
+    },
+    {
+      id: "4",
+      text: "It's going well, we're making good progress",
+      isMe: true,
+      timestamp: new Date(),
+      status: "delivered",
+    },
   ]);
-
-  const conversations: Conversation[] = [
-    { id: "1", name: "Henry Boyd", avatar: "H", lastMessage: "Hey How are you today?", timestamp: new Date(), unread: 0, online: true },
-    { id: "2", name: "Marta Curtis", avatar: "M", lastMessage: "Can you review the latest changes?", timestamp: new Date(), unread: 2, online: false },
-    { id: "3", name: "Philip Tucker", avatar: "P", lastMessage: "Great work on the new feature!", timestamp: new Date(), unread: 0, online: true },
-    { id: "4", name: "Christine Reid", avatar: "C", lastMessage: "Let's schedule a meeting", timestamp: new Date(), unread: 1, online: false },
-  ];
 
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background">
@@ -56,10 +83,7 @@ const Chat: React.FC<ChatProps> = ({ spaceDimension, spaceId }) => {
         <div className="p-4 border-b border-border">
           <div className="relative">
             <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search conversations..."
-              className="pl-9"
-            />
+            <Input placeholder="Search members..." className="pl-9" />
           </div>
         </div>
 
@@ -68,12 +92,14 @@ const Chat: React.FC<ChatProps> = ({ spaceDimension, spaceId }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Avatar>
-                <AvatarImage src="https://avatars3.githubusercontent.com/u/2763884?s=128" />
+                <AvatarImage src={currentUser.avatar} />
                 <AvatarFallback>JD</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="font-semibold">jsndz</h2>
-                <p className="text-sm text-muted-foreground">Lead UI/UX Designer</p>
+                <h2 className="font-semibold">{currentUser.name}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {currentUser.position.x}-{currentUser.position.y}
+                </p>
               </div>
             </div>
             <DropdownMenu>
@@ -91,45 +117,49 @@ const Chat: React.FC<ChatProps> = ({ spaceDimension, spaceId }) => {
           </div>
         </div>
 
-        {/* Conversations List */}
+        {/* Members List */}
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-muted-foreground">Conversations</h3>
-              <Badge variant="secondary" className="ml-auto">4</Badge>
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Members
+              </h3>
+              <Badge variant="secondary" className="ml-auto">
+                {users.size}
+              </Badge>
             </div>
             <div className="space-y-1">
-              {conversations.map((conv) => (
-                <Button
-                  key={conv.id}
-                  variant={selectedConversation === conv.name ? "secondary" : "ghost"}
-                  className="w-full justify-start space-x-3 relative"
-                  onClick={() => setSelectedConversation(conv.name)}
-                >
-                  <div className="relative">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback>{conv.avatar}</AvatarFallback>
-                    </Avatar>
-                    {conv.online && (
-                      <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-background" />
-                    )}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{conv.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {conv.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground truncate max-w-[150px]">{conv.lastMessage}</span>
-                      {conv.unread > 0 && (
-                        <Badge variant="default" className="ml-2">{conv.unread}</Badge>
-                      )}
-                    </div>
-                  </div>
-                </Button>
-              ))}
+              <div className="space-y-1">
+                {users &&
+                  Array.from(users.values()).map((user) => {
+                    return (
+                      <Button
+                        key={user.id}
+                        variant={
+                          selectedConversation === user.name
+                            ? "secondary"
+                            : "ghost"
+                        }
+                        className="w-full justify-start space-x-3 relative"
+                        onClick={() => setSelectedConversation(user.name)}
+                      >
+                        <div className="relative">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={user.avatar} />
+                            <AvatarFallback>{user.name}</AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{user.name}</span>
+                            <span className="text-xs text-muted-foreground"></span>
+                          </div>
+                          <div className="flex items-center justify-between"></div>
+                        </div>
+                      </Button>
+                    );
+                  })}
+              </div>
             </div>
           </div>
         </ScrollArea>
@@ -193,11 +223,18 @@ const Chat: React.FC<ChatProps> = ({ spaceDimension, spaceId }) => {
                     <p className="text-sm">{message.text}</p>
                     <div className="flex items-center justify-end space-x-1 mt-1">
                       <span className="text-xs opacity-70">
-                        {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
                       {message.isMe && (
                         <span className="text-xs">
-                          {message.status === 'read' ? '✓✓' : message.status === 'delivered' ? '✓✓' : '✓'}
+                          {message.status === "read"
+                            ? "✓✓"
+                            : message.status === "delivered"
+                              ? "✓✓"
+                              : "✓"}
                         </span>
                       )}
                     </div>
@@ -209,9 +246,18 @@ const Chat: React.FC<ChatProps> = ({ spaceDimension, spaceId }) => {
             <div className="flex justify-start">
               <div className="bg-muted rounded-lg p-3">
                 <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div
+                    className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <div
+                    className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <div
+                    className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  />
                 </div>
               </div>
             </div>
@@ -231,10 +277,7 @@ const Chat: React.FC<ChatProps> = ({ spaceDimension, spaceId }) => {
                 <TooltipContent>Attach file</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Input
-              placeholder="Type a message..."
-              className="flex-1"
-            />
+            <Input placeholder="Type a message..." className="flex-1" />
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
