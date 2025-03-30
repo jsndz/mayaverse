@@ -9,7 +9,6 @@ import { getSpaceData } from "@/endpoint/endpoint";
 import { Page, SpaceData } from "@/lib/types";
 import Chat from "@/components/Chat";
 import { FloatingDock } from "@/components/ui/floating-dock";
-
 import { Loader } from "lucide-react";
 import { User } from "@/lib/types";
 import { handleWSEvent } from "@/lib/websocket";

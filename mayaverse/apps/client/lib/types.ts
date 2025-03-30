@@ -24,7 +24,6 @@ interface Position {
 }
 export interface User {
   id: string;
-
   name?: string;
   avatar?: string;
   position: Position;
@@ -46,4 +45,20 @@ export enum Page {
   "chat",
   "settings",
   "members",
+}
+
+export interface ChatProps {
+  spaceId: string;
+  users: Map<string, User>;
+  currentUser: User;
+}
+export interface Chats {
+  to: string | undefined;
+  messages: Message | undefined;
+}
+export interface Message {
+  id: string;
+  text: string;
+  isMe: boolean;
+  timestamp: Date;
 }

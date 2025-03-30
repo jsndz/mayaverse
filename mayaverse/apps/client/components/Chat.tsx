@@ -26,54 +26,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "@/lib/types";
-
-interface ChatProps {
-  spaceId: string;
-  users: Map<string, User>;
-  currentUser: User;
-}
-
-interface Message {
-  id: string;
-  text: string;
-  isMe: boolean;
-  timestamp: Date;
-  status: "sent" | "delivered" | "read";
-}
+import { ChatProps, Chats, User } from "@/lib/types";
+import { ChartConfig } from "./ui/chart";
 
 const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
-  const [selectedConversation, setSelectedConversation] = useState<string>();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      text: "Hey How are you today?",
-      isMe: false,
-      timestamp: new Date(),
-      status: "read",
-    },
-    {
-      id: "2",
-      text: "I'm doing great, thanks for asking!",
-      isMe: true,
-      timestamp: new Date(),
-      status: "read",
-    },
-    {
-      id: "3",
-      text: "How's the project going?",
-      isMe: false,
-      timestamp: new Date(),
-      status: "read",
-    },
-    {
-      id: "4",
-      text: "It's going well, we're making good progress",
-      isMe: true,
-      timestamp: new Date(),
-      status: "delivered",
-    },
-  ]);
+  const [selectedConversation, setSelectedConversation] = useState<User>();
+  const [messages, setMessages] = useState<Chats[]>([]);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background">
@@ -141,7 +99,7 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
                             : "ghost"
                         }
                         className="w-full justify-start space-x-3 relative"
-                        onClick={() => setSelectedConversation(user.name)}
+                        onClick={() => setSelectedConversation(user)}
                       >
                         <div className="relative">
                           <Avatar className="h-10 w-10">
@@ -172,10 +130,11 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Avatar>
+                <AvatarImage src={selectedConversation?.avatar}></AvatarImage>
                 <AvatarFallback>H</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="font-semibold">Henry Boyd</h2>
+                <h2 className="font-semibold">{selectedConversation?.name}</h2>
                 <p className="text-sm text-muted-foreground">Online</p>
               </div>
             </div>
@@ -207,60 +166,18 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
         {/* Messages */}
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}
-              >
-                <div className="flex flex-col max-w-[70%]">
-                  <div
-                    className={`rounded-lg p-3 ${
-                      message.isMe
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
-                    }`}
-                  >
-                    <p className="text-sm">{message.text}</p>
-                    <div className="flex items-center justify-end space-x-1 mt-1">
-                      <span className="text-xs opacity-70">
-                        {message.timestamp.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                      {message.isMe && (
-                        <span className="text-xs">
-                          {message.status === "read"
-                            ? "✓✓"
-                            : message.status === "delivered"
-                              ? "✓✓"
-                              : "✓"}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {/* Typing Indicator */}
-            <div className="flex justify-start">
-              <div className="bg-muted rounded-lg p-3">
-                <div className="flex space-x-1">
-                  <div
-                    className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                    style={{ animationDelay: "0ms" }}
-                  />
-                  <div
-                    className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                    style={{ animationDelay: "150ms" }}
-                  />
-                  <div
-                    className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                    style={{ animationDelay: "300ms" }}
-                  />
-                </div>
-              </div>
-            </div>
+            {
+              <ChatMessages
+                to={
+                  messages.find((user) => user.to === selectedConversation?.id)
+                    ?.to
+                }
+                messages={
+                  messages.find((user) => user.to === selectedConversation?.id)
+                    ?.messages
+                }
+              ></ChatMessages>
+            }
           </div>
         </ScrollArea>
 
@@ -306,3 +223,33 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
 };
 
 export default Chat;
+
+const ChatMessages: React.FC<Chats> = ({ to, messages }) => {
+  if (!messages) {
+    return <div>Initiate conversation</div>;
+  }
+  return (
+    <div
+      key={messages.id}
+      className={`flex ${messages.isMe ? "justify-end" : "justify-start"}`}
+    >
+      <div className="flex flex-col max-w-[70%]">
+        <div
+          className={`rounded-lg p-3 ${
+            messages.isMe ? "bg-primary text-primary-foreground" : "bg-muted"
+          }`}
+        >
+          <p className="text-sm">{messages.text}</p>
+          <div className="flex items-center justify-end space-x-1 mt-1">
+            <span className="text-xs opacity-70">
+              {messages.timestamp.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

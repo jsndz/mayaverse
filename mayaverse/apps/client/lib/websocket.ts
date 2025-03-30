@@ -1,6 +1,6 @@
 import { getUsersMeta } from "@/endpoint/endpoint";
 import { Dispatch, SetStateAction } from "react";
-import { User } from "./types";
+import { Chats, User } from "./types";
 
 export async function getUserdata(users: string, token: string) {
   const userData = await getUsersMeta(token, users);
@@ -117,5 +117,15 @@ export const handleWSEvent = (
 
     default:
       break;
+  }
+};
+
+export const handleChatEvents = (
+  message: any,
+  token: string,
+  setMessages: Dispatch<SetStateAction<Chats[]>>
+) => {
+  switch (message.type) {
+    case "chat-message":
   }
 };
