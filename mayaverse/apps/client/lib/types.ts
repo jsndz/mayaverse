@@ -53,8 +53,8 @@ export interface ChatProps {
   currentUser: User;
 }
 export interface Chats {
-  to: string | undefined;
-  messages: Message | undefined;
+  mate: string | undefined;
+  messages: Message[] | undefined;
 }
 export interface Message {
   id: string;

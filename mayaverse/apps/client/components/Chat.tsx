@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,10 @@ import { ChartConfig } from "./ui/chart";
 const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
   const [selectedConversation, setSelectedConversation] = useState<User>();
   const [messages, setMessages] = useState<Chats[]>([]);
+
+  useEffect(() => {
+    async function init() {}
+  });
 
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background">
@@ -168,13 +172,15 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
           <div className="p-4 space-y-4">
             {
               <ChatMessages
-                to={
-                  messages.find((user) => user.to === selectedConversation?.id)
-                    ?.to
+                mate={
+                  messages.find(
+                    (user) => user.mate === selectedConversation?.id
+                  )?.mate
                 }
                 messages={
-                  messages.find((user) => user.to === selectedConversation?.id)
-                    ?.messages
+                  messages.find(
+                    (user) => user.mate === selectedConversation?.id
+                  )?.messages
                 }
               ></ChatMessages>
             }
@@ -224,32 +230,40 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
 
 export default Chat;
 
-const ChatMessages: React.FC<Chats> = ({ to, messages }) => {
+const ChatMessages: React.FC<Chats> = ({ mate, messages }) => {
   if (!messages) {
     return <div>Initiate conversation</div>;
   }
   return (
-    <div
-      key={messages.id}
-      className={`flex ${messages.isMe ? "justify-end" : "justify-start"}`}
-    >
-      <div className="flex flex-col max-w-[70%]">
-        <div
-          className={`rounded-lg p-3 ${
-            messages.isMe ? "bg-primary text-primary-foreground" : "bg-muted"
-          }`}
-        >
-          <p className="text-sm">{messages.text}</p>
-          <div className="flex items-center justify-end space-x-1 mt-1">
-            <span className="text-xs opacity-70">
-              {messages.timestamp.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
+    <div>
+      {messages.map((message) => {
+        return (
+          <div
+            key={message.id}
+            className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}
+          >
+            <div className="flex flex-col max-w-[70%]">
+              <div
+                className={`rounded-lg p-3 ${
+                  message.isMe
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted"
+                }`}
+              >
+                <p className="text-sm">{message.text}</p>
+                <div className="flex items-center justify-end space-x-1 mt-1">
+                  <span className="text-xs opacity-70">
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 };

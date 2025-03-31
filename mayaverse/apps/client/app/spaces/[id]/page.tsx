@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useParams } from "next/navigation";
 import Arena from "@/components/Arena";
 import { getSpaceData } from "@/endpoint/endpoint";
-import { Page, SpaceData } from "@/lib/types";
+import { Chats, Page, SpaceData } from "@/lib/types";
 import Chat from "@/components/Chat";
 import { FloatingDock } from "@/components/ui/floating-dock";
 import { Loader } from "lucide-react";
@@ -32,6 +32,8 @@ export default function Space() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<Map<string, User>>(new Map());
 
+  const [selectedConversation, setSelectedConversation] = useState<User>();
+  const [messages, setMessages] = useState<Chats[]>([]);
   useEffect(() => {
     if (!ws_url) return;
     const token = localStorage.getItem("token");

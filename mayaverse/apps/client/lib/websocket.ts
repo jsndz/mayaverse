@@ -127,5 +127,17 @@ export const handleChatEvents = (
 ) => {
   switch (message.type) {
     case "chat-message":
+      setMessages((prev) => {
+        const messages: Chats[] = prev;
+        messages
+          .find((user) => user.mate === message.payload.sender)
+          ?.messages?.push({
+            id: message.payload.sender,
+            text: message.payload.text,
+            isMe: false,
+            timestamp: new Date(Date.now()),
+          });
+        return messages;
+      });
   }
 };
