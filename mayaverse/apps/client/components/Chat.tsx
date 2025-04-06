@@ -13,7 +13,6 @@ import {
 } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -27,16 +26,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChatProps, Chats, User } from "@/lib/types";
-import { ChartConfig } from "./ui/chart";
 
-const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
-  const [selectedConversation, setSelectedConversation] = useState<User>();
-  const [messages, setMessages] = useState<Chats[]>([]);
-
-  useEffect(() => {
-    async function init() {}
-  });
-
+const Chat: React.FC<ChatProps> = ({
+  spaceId,
+  users,
+  currentUser,
+  selectedConversation,
+  messages,
+  setMessages,
+  setSelectedConversation,
+  handleMessage,
+}) => {
+  const [text, setText] = useState<string>("");
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background">
       {/* Sidebar */}
@@ -98,7 +99,7 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
                       <Button
                         key={user.id}
                         variant={
-                          selectedConversation === user.name
+                          selectedConversation?.name === user.name
                             ? "secondary"
                             : "ghost"
                         }
@@ -200,7 +201,14 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
                 <TooltipContent>Attach file</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Input placeholder="Type a message..." className="flex-1" />
+
+            <Input
+              onChange={(e) => {
+                setText(e.target.value);
+              }}
+              placeholder="Type a message..."
+              className="flex-1"
+            />
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -215,7 +223,12 @@ const Chat: React.FC<ChatProps> = ({ spaceId, users, currentUser }) => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button size="icon">
-                    <IconSend className="h-5 w-5" />
+                    <IconSend
+                      onClick={() => {
+                        handleMessage(text);
+                      }}
+                      className="h-5 w-5"
+                    />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Send message</TooltipContent>

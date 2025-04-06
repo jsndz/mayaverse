@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface Element {
   id: string;
   imageUrl: string;
@@ -51,6 +53,11 @@ export interface ChatProps {
   spaceId: string;
   users: Map<string, User>;
   currentUser: User;
+  selectedConversation: User;
+  messages: Chats[];
+  setMessages: Dispatch<SetStateAction<Chats[]>>;
+  setSelectedConversation: Dispatch<SetStateAction<User | undefined>>;
+  handleMessage: (message: string) => void;
 }
 export interface Chats {
   mate: string | undefined;

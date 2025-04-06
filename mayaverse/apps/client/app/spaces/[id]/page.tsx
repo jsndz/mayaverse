@@ -11,7 +11,7 @@ import Chat from "@/components/Chat";
 import { FloatingDock } from "@/components/ui/floating-dock";
 import { Loader } from "lucide-react";
 import { User } from "@/lib/types";
-import { handleWSEvent } from "@/lib/websocket";
+import { handleChatEvents, handleWSEvent } from "@/lib/websocket";
 import { links } from "@/components/constants";
 
 export default function Space() {
@@ -57,6 +57,7 @@ export default function Space() {
     wsref.current.onmessage = (event: MessageEvent) => {
       const message = JSON.parse(event.data);
       handleWSEvent(message, token!, setCurrentUser, setUsers);
+      handleChatEvents(message, token!, setMessages);
     };
 
     return () => {
@@ -65,6 +66,25 @@ export default function Space() {
       }
     };
   }, [spaceId, token]);
+  async function handleMessage(message: string) {
+    if (isLoading) {
+      return null;
+    }
+    if (!wsref.current) {
+      return null;
+    }
+    console.log("hello");
+
+    wsref.current.send(
+      JSON.stringify({
+        type: "chat",
+        payload: {
+          recieverId: selectedConversation?.id,
+          message: message,
+        },
+      })
+    );
+  }
 
   useEffect(() => {
     async function getSpace() {
@@ -136,7 +156,16 @@ export default function Space() {
             />
           )}
           {page === Page.chat && (
-            <Chat spaceId={params.id} users={users} currentUser={currentUser} />
+            <Chat
+              spaceId={params.id}
+              users={users}
+              currentUser={currentUser}
+              selectedConversation={selectedConversation!}
+              messages={messages}
+              setMessages={setMessages}
+              setSelectedConversation={setSelectedConversation}
+              handleMessage={handleMessage}
+            />
           )}
           {/* {page === Page.members && <SpaceM spaceId={params.id} />}
               {page === Page.settings && <SpaceSettings spaceId={params.id} />} */}
