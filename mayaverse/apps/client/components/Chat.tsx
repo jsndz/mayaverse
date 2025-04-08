@@ -38,6 +38,7 @@ const Chat: React.FC<ChatProps> = ({
   handleMessage,
 }) => {
   const [text, setText] = useState<string>("");
+
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background">
       {/* Sidebar */}
@@ -225,7 +226,9 @@ const Chat: React.FC<ChatProps> = ({
                   <Button size="icon">
                     <IconSend
                       onClick={() => {
-                        handleMessage(text);
+                        if (selectedConversation) {
+                          handleMessage(text);
+                        }
                       }}
                       className="h-5 w-5"
                     />
@@ -244,39 +247,44 @@ const Chat: React.FC<ChatProps> = ({
 export default Chat;
 
 const ChatMessages: React.FC<Chats> = ({ mate, messages }) => {
-  if (!messages) {
-    return <div>Initiate conversation</div>;
-  }
+  // if (!messages) {
+  //   console.log(messages);
+  //   return <div>Initiate conversation</div>;
+  // }
+  console.log("message from charMessages", messages);
+
   return (
     <div>
-      {messages.map((message) => {
-        return (
-          <div
-            key={message.id}
-            className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}
-          >
-            <div className="flex flex-col max-w-[70%]">
-              <div
-                className={`rounded-lg p-3 ${
-                  message.isMe
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
-                }`}
-              >
-                <p className="text-sm">{message.text}</p>
-                <div className="flex items-center justify-end space-x-1 mt-1">
-                  <span className="text-xs opacity-70">
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+      {messages &&
+        messages.map((message) => {
+          return (
+            <div
+              key={message.id}
+              className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}
+            >
+              <div>Hello</div>
+              <div className="flex flex-col max-w-[70%]">
+                <div
+                  className={`rounded-lg p-3 ${
+                    message.isMe
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  <p className="text-sm">{message.text}</p>
+                  <div className="flex items-center justify-end space-x-1 mt-1">
+                    <span className="text-xs opacity-70">
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 };

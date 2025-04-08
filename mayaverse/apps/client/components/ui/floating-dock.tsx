@@ -119,6 +119,7 @@ const FloatingDockDesktop = ({
     >
       {items.map((item) => (
         <button
+          key={item.title}
           onClick={() => {
             setPage(item.href);
           }}

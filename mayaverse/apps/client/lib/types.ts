@@ -63,6 +63,7 @@ export interface Chats {
   mate: string | undefined;
   messages: Message[] | undefined;
 }
+
 export interface Message {
   id: string;
   text: string;

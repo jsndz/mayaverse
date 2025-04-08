@@ -128,16 +128,29 @@ export const handleChatEvents = (
   switch (message.type) {
     case "chat-message":
       setMessages((prev) => {
-        const messages: Chats[] = prev;
-        messages
-          .find((user) => user.mate === message.payload.sender)
-          ?.messages?.push({
-            id: message.payload.sender,
-            text: message.payload.text,
-            isMe: false,
-            timestamp: new Date(Date.now()),
+        const updated = [...prev];
+        const index = updated.findIndex(
+          (chat) => chat.mate === message.payload.sender
+        );
+        const newMessage = {
+          id: message.payload.id,
+          text: message.payload.message,
+          timestamp: new Date(),
+          isMe: false,
+        };
+        if (index !== -1) {
+          updated[index].messages!.push(newMessage);
+        } else {
+          updated.push({
+            mate: message.payload.sender,
+            messages: [newMessage],
           });
-        return messages;
+        }
+        return updated;
       });
+      break;
+
+    default:
+      break;
   }
 };

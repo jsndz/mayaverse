@@ -33,7 +33,19 @@ export default function Space() {
   const [users, setUsers] = useState<Map<string, User>>(new Map());
 
   const [selectedConversation, setSelectedConversation] = useState<User>();
-  const [messages, setMessages] = useState<Chats[]>([]);
+  const [messages, setMessages] = useState<Chats[]>([
+    {
+      mate: "heh",
+      messages: [
+        {
+          id: "deds",
+          isMe: true,
+          text: "hello",
+          timestamp: new Date(),
+        },
+      ],
+    },
+  ]);
   useEffect(() => {
     if (!ws_url) return;
     const token = localStorage.getItem("token");
@@ -73,7 +85,6 @@ export default function Space() {
     if (!wsref.current) {
       return null;
     }
-    console.log("hello");
 
     wsref.current.send(
       JSON.stringify({

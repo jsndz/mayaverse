@@ -143,7 +143,7 @@ export class User {
               type: "chat-message",
               payload: {
                 message: msg,
-                sender: this.id,
+                sender: this.userId,
               },
             },
             this.spaceId!,
