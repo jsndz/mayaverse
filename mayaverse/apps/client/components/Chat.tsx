@@ -247,11 +247,9 @@ const Chat: React.FC<ChatProps> = ({
 export default Chat;
 
 const ChatMessages: React.FC<Chats> = ({ mate, messages }) => {
-  // if (!messages) {
-  //   console.log(messages);
-  //   return <div>Initiate conversation</div>;
-  // }
-  console.log("message from charMessages", messages);
+  useEffect(() => {
+    console.log(messages);
+  }, [messages]);
 
   return (
     <div>
@@ -262,7 +260,6 @@ const ChatMessages: React.FC<Chats> = ({ mate, messages }) => {
               key={message.id}
               className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}
             >
-              <div>Hello</div>
               <div className="flex flex-col max-w-[70%]">
                 <div
                   className={`rounded-lg p-3 ${

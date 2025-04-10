@@ -33,19 +33,7 @@ export default function Space() {
   const [users, setUsers] = useState<Map<string, User>>(new Map());
 
   const [selectedConversation, setSelectedConversation] = useState<User>();
-  const [messages, setMessages] = useState<Chats[]>([
-    {
-      mate: "heh",
-      messages: [
-        {
-          id: "deds",
-          isMe: true,
-          text: "hello",
-          timestamp: new Date(),
-        },
-      ],
-    },
-  ]);
+  const [messages, setMessages] = useState<Chats[]>([]);
   useEffect(() => {
     if (!ws_url) return;
     const token = localStorage.getItem("token");
@@ -85,7 +73,43 @@ export default function Space() {
     if (!wsref.current) {
       return null;
     }
+    // setMessages((prev) => {
+    //   const updated = [...prev];
+    //   const index = updated.findIndex(
+    //     (chat) => chat.mate === message.payload.sender
+    //   );
+    //   const newMessage = {
+    //     id: message.payload.id,
+    //     text: message.payload.message,
+    //     timestamp: new Date(),
+    //     isMe: false,
+    //   };
+    //   if (index !== -1) {
+    //     updated[index].messages!.push(newMessage);
+    //   } else {
+    //     updated.push({
+    //       mate: message.payload.sender,
+    //       messages: [newMessage],
+    //     });
+    //   }
+    //   return updated;
+    // });
+    setMessages((prev) => {
+      const updated = [...prev];
 
+      const newMessage = {
+        id: currentUser?.id!,
+        text: message,
+        timestamp: new Date(),
+        isMe: true,
+      };
+      updated.push({
+        mate: currentUser?.id,
+        messages: [newMessage],
+      });
+
+      return updated;
+    });
     wsref.current.send(
       JSON.stringify({
         type: "chat",

@@ -132,6 +132,10 @@ export const handleChatEvents = (
         const index = updated.findIndex(
           (chat) => chat.mate === message.payload.sender
         );
+        console.log("updated", updated);
+
+        console.log(message.payload.sender, "2");
+
         const newMessage = {
           id: message.payload.id,
           text: message.payload.message,
