@@ -73,27 +73,6 @@ export default function Space() {
     if (!wsref.current) {
       return null;
     }
-    // setMessages((prev) => {
-    //   const updated = [...prev];
-    //   const index = updated.findIndex(
-    //     (chat) => chat.mate === message.payload.sender
-    //   );
-    //   const newMessage = {
-    //     id: message.payload.id,
-    //     text: message.payload.message,
-    //     timestamp: new Date(),
-    //     isMe: false,
-    //   };
-    //   if (index !== -1) {
-    //     updated[index].messages!.push(newMessage);
-    //   } else {
-    //     updated.push({
-    //       mate: message.payload.sender,
-    //       messages: [newMessage],
-    //     });
-    //   }
-    //   return updated;
-    // });
     setMessages((prev) => {
       const updated = [...prev];
 
@@ -104,7 +83,7 @@ export default function Space() {
         isMe: true,
       };
       updated.push({
-        mate: currentUser?.id,
+        mate: selectedConversation?.id,
         messages: [newMessage],
       });
 

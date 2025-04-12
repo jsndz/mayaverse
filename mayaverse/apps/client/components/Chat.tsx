@@ -254,10 +254,10 @@ const ChatMessages: React.FC<Chats> = ({ mate, messages }) => {
   return (
     <div>
       {messages &&
-        messages.map((message) => {
+        messages.map((message, index) => {
           return (
             <div
-              key={message.id}
+              key={index}
               className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}
             >
               <div className="flex flex-col max-w-[70%]">
