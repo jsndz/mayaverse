@@ -127,14 +127,16 @@ export const handleChatEvents = (
 ) => {
   switch (message.type) {
     case "chat-message":
+      console.log("got message 2");
+
       setMessages((prev) => {
         const updated = [...prev];
+        console.log("updated", updated);
+
         const index = updated.findIndex(
           (chat) => chat.mate === message.payload.sender
         );
-        console.log("updated", updated);
-
-        console.log(message.payload.sender, "2");
+        console.log("index", index);
 
         const newMessage = {
           id: message.payload.id,
@@ -142,6 +144,8 @@ export const handleChatEvents = (
           timestamp: new Date(),
           isMe: false,
         };
+        console.log("new message", newMessage);
+
         if (index !== -1) {
           updated[index].messages!.push(newMessage);
         } else {

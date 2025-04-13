@@ -133,7 +133,7 @@ export class User {
           break;
 
         case "chat":
-          console.log(parsedData.payload);
+          console.log("got message");
 
           const recieverId = parsedData.payload.recieverId;
           const msg = parsedData.payload.message;

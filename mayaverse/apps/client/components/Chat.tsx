@@ -247,10 +247,6 @@ const Chat: React.FC<ChatProps> = ({
 export default Chat;
 
 const ChatMessages: React.FC<Chats> = ({ mate, messages }) => {
-  useEffect(() => {
-    console.log(messages);
-  }, [messages]);
-
   return (
     <div>
       {messages &&

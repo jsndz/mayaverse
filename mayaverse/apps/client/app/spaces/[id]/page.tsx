@@ -65,7 +65,7 @@ export default function Space() {
         wsref.current.close();
       }
     };
-  }, [spaceId, token]);
+  }, [spaceId]);
   async function handleMessage(message: string) {
     if (isLoading) {
       return null;
@@ -75,17 +75,24 @@ export default function Space() {
     }
     setMessages((prev) => {
       const updated = [...prev];
-
+      const index = updated.findIndex(
+        (chat) => chat.mate === selectedConversation?.id
+      );
       const newMessage = {
         id: currentUser?.id!,
         text: message,
         timestamp: new Date(),
         isMe: true,
       };
-      updated.push({
-        mate: selectedConversation?.id,
-        messages: [newMessage],
-      });
+
+      if (index !== -1) {
+        updated[index]?.messages?.push(newMessage);
+      } else {
+        updated.push({
+          mate: selectedConversation?.id,
+          messages: [newMessage],
+        });
+      }
 
       return updated;
     });
