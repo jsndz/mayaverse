@@ -6,6 +6,15 @@ export async function getUserdata(users: string, token: string) {
   const userData = await getUsersMeta(token, users);
   return userData;
 }
+export function generateRandomId(length: number = 10): string {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
 
 export const handleWSEvent = (
   message: any,
@@ -122,33 +131,38 @@ export const handleWSEvent = (
 
 export const handleChatEvents = (
   message: any,
-  token: string,
-  setMessages: Dispatch<SetStateAction<Chats[]>>
+  setMessages: Dispatch<SetStateAction<Chats[]>>,
+  currentUserId: string | undefined
 ) => {
   switch (message.type) {
     case "chat-message":
-      console.log("got message 2");
+      let incomingMessageId = message.payload.messageId;
 
       setMessages((prev) => {
         const updated = [...prev];
-        console.log("updated", updated);
+        for (const chat of updated) {
+          if (chat.messages?.some((msg) => msg.id === incomingMessageId)) {
+            return prev;
+          }
+        }
 
         const index = updated.findIndex(
           (chat) => chat.mate === message.payload.sender
         );
-        console.log("index", index);
 
         const newMessage = {
-          id: message.payload.id,
+          id: incomingMessageId,
           text: message.payload.message,
           timestamp: new Date(),
           isMe: false,
         };
-        console.log("new message", newMessage);
-
         if (index !== -1) {
+          console.log(" condition index not -1 from ss");
+
           updated[index].messages!.push(newMessage);
         } else {
+          console.log(" condition eklse from ss");
+
           updated.push({
             mate: message.payload.sender,
             messages: [newMessage],

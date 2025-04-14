@@ -33,6 +33,8 @@ export class User {
   initHandlers() {
     this.ws.on("message", async (data) => {
       const parsedData = JSON.parse(data.toString());
+      console.log(parsedData);
+
       switch (parsedData.type) {
         case "join":
           const spaceId = parsedData.payload.spaceId;
@@ -133,15 +135,15 @@ export class User {
           break;
 
         case "chat":
-          console.log("got message");
-
           const recieverId = parsedData.payload.recieverId;
           const msg = parsedData.payload.message;
+          const messageId = parsedData.payload.messageId;
 
           RoomManager.getInstance().chat(
             {
               type: "chat-message",
               payload: {
+                messageId: messageId,
                 message: msg,
                 sender: this.userId,
               },

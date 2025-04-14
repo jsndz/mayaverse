@@ -28,12 +28,10 @@ import {
 import { ChatProps, Chats, User } from "@/lib/types";
 
 const Chat: React.FC<ChatProps> = ({
-  spaceId,
   users,
   currentUser,
   selectedConversation,
   messages,
-  setMessages,
   setSelectedConversation,
   handleMessage,
 }) => {

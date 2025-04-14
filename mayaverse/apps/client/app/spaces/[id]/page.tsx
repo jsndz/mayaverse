@@ -1,136 +1,145 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
+import { Loader } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { useParams } from "next/navigation";
-import Arena from "@/components/Arena";
-import { getSpaceData } from "@/endpoint/endpoint";
-import { Chats, Page, SpaceData } from "@/lib/types";
-import Chat from "@/components/Chat";
 import { FloatingDock } from "@/components/ui/floating-dock";
-import { Loader } from "lucide-react";
-import { User } from "@/lib/types";
-import { handleChatEvents, handleWSEvent } from "@/lib/websocket";
+import { useToast } from "@/hooks/use-toast";
+
+import Arena from "@/components/Arena";
+import Chat from "@/components/Chat";
+
+import { getSpaceData } from "@/endpoint/endpoint";
+import { Chats, Page, SpaceData, User } from "@/lib/types";
+import {
+  generateRandomId,
+  handleChatEvents,
+  handleWSEvent,
+} from "@/lib/websocket";
 import { links } from "@/components/constants";
 
 export default function Space() {
-  const params = useParams<{ id: string }>();
-  const [spaceDimension, setSpaceDimension] = useState<string>();
-  const [page, setPage] = useState<Page>(Page.arena);
-  const ws_url =
-    process.env.NEXT_PUBLIC_STATE === "development"
-      ? process.env.NEXT_PUBLIC_DEV_WS
-      : process.env.NEXT_PUBLIC_PROD_WS;
-  const [isLoading, setIsLoading] = useState(true);
+  const { id: spaceId } = useParams<{ id: string }>();
   const { toast } = useToast();
 
-  const spaceId = params.id;
-  const token = "";
+  const [isLoading, setIsLoading] = useState(true);
+  const [spaceDimension, setSpaceDimension] = useState<string>();
+  const [page, setPage] = useState<Page>(Page.arena);
 
-  const wsref = useRef<WebSocket | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<Map<string, User>>(new Map());
 
   const [selectedConversation, setSelectedConversation] = useState<User>();
   const [messages, setMessages] = useState<Chats[]>([]);
+
+  const wsref = useRef<WebSocket | null>(null);
+  const wsUrl =
+    process.env.NEXT_PUBLIC_STATE === "development"
+      ? process.env.NEXT_PUBLIC_DEV_WS
+      : process.env.NEXT_PUBLIC_PROD_WS;
+
+  const getSpace = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const space: SpaceData = await getSpaceData(token!, spaceId);
+      setSpaceDimension(space.dimension);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load space data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (!ws_url) return;
+    getSpace();
+
+    if (!wsUrl || wsref.current) return;
+
     const token = localStorage.getItem("token");
+    const socket = new WebSocket(wsUrl);
+    wsref.current = socket;
 
-    wsref.current = new WebSocket(ws_url);
-
-    wsref.current.onopen = async () => {
-      if (wsref.current && token) {
-        wsref.current.send(
+    socket.onopen = () => {
+      if (token) {
+        socket.send(
           JSON.stringify({
             type: "join",
             payload: {
-              spaceId: spaceId,
-              token: token,
+              spaceId,
+              token,
             },
           })
         );
       }
     };
 
-    wsref.current.onmessage = (event: MessageEvent) => {
+    socket.onmessage = (event: MessageEvent) => {
       const message = JSON.parse(event.data);
       handleWSEvent(message, token!, setCurrentUser, setUsers);
-      handleChatEvents(message, token!, setMessages);
+      handleChatEvents(message, setMessages, currentUser?.id);
     };
 
     return () => {
-      if (wsref.current) {
-        wsref.current.close();
-      }
+      socket.close();
+      wsref.current = null;
     };
   }, [spaceId]);
-  async function handleMessage(message: string) {
-    if (isLoading) {
-      return null;
-    }
-    if (!wsref.current) {
-      return null;
-    }
+
+  const handleMessage = async (text: string) => {
+    if (!wsref.current || isLoading || !selectedConversation) return;
+
+    const messageId = generateRandomId();
+    const newMessage = {
+      id: messageId,
+      text,
+      timestamp: new Date(),
+      isMe: true,
+    };
+
     setMessages((prev) => {
       const updated = [...prev];
       const index = updated.findIndex(
-        (chat) => chat.mate === selectedConversation?.id
+        (chat) => chat.mate === selectedConversation.id
       );
-      const newMessage = {
-        id: currentUser?.id!,
-        text: message,
-        timestamp: new Date(),
-        isMe: true,
-      };
 
       if (index !== -1) {
-        updated[index]?.messages?.push(newMessage);
+        console.log(" condition index not -1");
+
+        updated[index].messages?.push(newMessage);
       } else {
+        console.log(" condition else");
+
         updated.push({
-          mate: selectedConversation?.id,
+          mate: selectedConversation.id,
           messages: [newMessage],
         });
       }
 
       return updated;
     });
+
     wsref.current.send(
       JSON.stringify({
         type: "chat",
         payload: {
-          recieverId: selectedConversation?.id,
-          message: message,
+          messageId,
+          recieverId: selectedConversation.id,
+          message: text,
         },
       })
     );
-  }
+  };
 
-  useEffect(() => {
-    async function getSpace() {
-      try {
-        const token = localStorage.getItem("token");
-        const space: SpaceData = await getSpaceData(token!, params.id);
-        setSpaceDimension(space.dimension);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load space data",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    getSpace();
-  }, []);
-
-  if (isLoading) {
+  if (isLoading || !currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader size="lg" />
+        <Loader />
       </div>
     );
   }
@@ -145,13 +154,6 @@ export default function Space() {
         <Button variant="outline" onClick={() => window.history.back()}>
           Go Back
         </Button>
-      </div>
-    );
-  }
-  if (!currentUser) {
-    return (
-      <div>
-        <p>Log in</p>
       </div>
     );
   }
@@ -173,12 +175,13 @@ export default function Space() {
               currentUser={currentUser}
               users={users}
               spaceDimension={spaceDimension}
-              spaceId={params.id}
+              spaceId={spaceId}
             />
           )}
+
           {page === Page.chat && (
             <Chat
-              spaceId={params.id}
+              spaceId={spaceId}
               users={users}
               currentUser={currentUser}
               selectedConversation={selectedConversation!}
@@ -188,8 +191,10 @@ export default function Space() {
               handleMessage={handleMessage}
             />
           )}
-          {/* {page === Page.members && <SpaceM spaceId={params.id} />}
-              {page === Page.settings && <SpaceSettings spaceId={params.id} />} */}
+
+          {/* 
+          {page === Page.members && <SpaceMembers spaceId={spaceId} />}
+          {page === Page.settings && <SpaceSettings spaceId={spaceId} />} */}
         </div>
       </main>
     </div>
