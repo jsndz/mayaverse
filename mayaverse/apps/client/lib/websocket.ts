@@ -157,12 +157,8 @@ export const handleChatEvents = (
           isMe: false,
         };
         if (index !== -1) {
-          console.log(" condition index not -1 from ss");
-
           updated[index].messages!.push(newMessage);
         } else {
-          console.log(" condition eklse from ss");
-
           updated.push({
             mate: message.payload.sender,
             messages: [newMessage],

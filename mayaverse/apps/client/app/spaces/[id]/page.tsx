@@ -107,14 +107,16 @@ export default function Space() {
       const index = updated.findIndex(
         (chat) => chat.mate === selectedConversation.id
       );
+      const isDuplicate = updated.some((chat) =>
+        chat.messages?.some((m) => m.id === messageId)
+      );
 
+      if (isDuplicate) {
+        return updated;
+      }
       if (index !== -1) {
-        console.log(" condition index not -1");
-
         updated[index].messages?.push(newMessage);
       } else {
-        console.log(" condition else");
-
         updated.push({
           mate: selectedConversation.id,
           messages: [newMessage],

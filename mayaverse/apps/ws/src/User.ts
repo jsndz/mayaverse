@@ -33,7 +33,6 @@ export class User {
   initHandlers() {
     this.ws.on("message", async (data) => {
       const parsedData = JSON.parse(data.toString());
-      console.log(parsedData);
 
       switch (parsedData.type) {
         case "join":

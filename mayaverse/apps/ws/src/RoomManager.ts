@@ -31,8 +31,6 @@ export class RoomManager {
   }
 
   public broadcast(message: OutgoingMessage, user: User, roomId: string) {
-    console.log("broadcased ", message);
-
     if (!this.rooms.has(roomId)) {
       return;
     }
@@ -45,8 +43,6 @@ export class RoomManager {
 
   public chat(message: OutgoingMessage, roomId: string, recieverId: string) {
     if (recieverId) {
-      console.log("sending a message", message);
-
       this.rooms
         .get(roomId)
         ?.find((u) => u.userId == recieverId)
