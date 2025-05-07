@@ -1109,7 +1109,6 @@ describe("Websocket", () => {
     );
     const message = await waitForAndPopLatest(ws2Messages);
     expect(message.type).toBe("chat-message");
-    console.log(message);
 
     expect(message.payload.message).toBe("hello");
   });
