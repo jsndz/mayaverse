@@ -19,10 +19,12 @@ import {
   handleWSEvent,
 } from "@/lib/websocket";
 import { links } from "@/components/constants";
+import { useWebSocketStore } from "@/store/useWebSocketStore";
 
 export default function Space() {
   const { id: spaceId } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { setSocket } = useWebSocketStore();
 
   const [isLoading, setIsLoading] = useState(true);
   const [spaceDimension, setSpaceDimension] = useState<string>();
@@ -81,7 +83,7 @@ export default function Space() {
     const token = localStorage.getItem("token");
     const socket = new WebSocket(wsUrl);
     wsref.current = socket;
-
+    setSocket(socket);
     socket.onopen = () => {
       if (token) {
         socket.send(
