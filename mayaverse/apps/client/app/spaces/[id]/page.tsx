@@ -39,7 +39,9 @@ export default function Space() {
     process.env.NEXT_PUBLIC_STATE === "development"
       ? process.env.NEXT_PUBLIC_DEV_WS
       : process.env.NEXT_PUBLIC_PROD_WS;
-
+  const configuration = {
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  };
   const getSpace = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -55,7 +57,22 @@ export default function Space() {
       setIsLoading(false);
     }
   };
-
+  const handleVideoCall = async () => {
+    console.log("Video call initiated");
+    const peerConnection = new RTCPeerConnection(configuration);
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    const socket = wsref.current;
+    socket?.send(
+      JSON.stringify({
+        type: "offer-video-call",
+        payload: {
+          offer: offer,
+          recieverId: selectedConversation?.id,
+        },
+      })
+    );
+  };
   useEffect(() => {
     getSpace();
 
@@ -191,6 +208,7 @@ export default function Space() {
               setMessages={setMessages}
               setSelectedConversation={setSelectedConversation}
               handleMessage={handleMessage}
+              handleVideoCall={handleVideoCall}
             />
           )}
 

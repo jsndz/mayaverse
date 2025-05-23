@@ -1,7 +1,8 @@
 import { getUsersMeta } from "@/endpoint/endpoint";
 import { Dispatch, SetStateAction } from "react";
 import { Chats, User } from "./types";
-
+import { useCallStore } from "@/store/useCallStore";
+import { set } from "date-fns";
 export async function getUserdata(users: string, token: string) {
   const userData = await getUsersMeta(token, users);
   return userData;
@@ -134,6 +135,7 @@ export const handleChatEvents = (
   setMessages: Dispatch<SetStateAction<Chats[]>>,
   currentUserId: string | undefined
 ) => {
+  const { setIncomingCall } = useCallStore.getState();
   switch (message.type) {
     case "chat-message":
       let incomingMessageId = message.payload.messageId;
@@ -167,7 +169,8 @@ export const handleChatEvents = (
         return updated;
       });
       break;
-
+    case "video-request":
+      setIncomingCall(message.payload.senderId);
     default:
       break;
   }

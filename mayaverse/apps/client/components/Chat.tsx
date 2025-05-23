@@ -34,6 +34,7 @@ const Chat: React.FC<ChatProps> = ({
   messages,
   setSelectedConversation,
   handleMessage,
+  handleVideoCall,
 }) => {
   const [text, setText] = useState<string>("");
 
@@ -156,7 +157,11 @@ const Chat: React.FC<ChatProps> = ({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleVideoCall}
+                    >
                       <IconVideo className="h-5 w-5" />
                     </Button>
                   </TooltipTrigger>

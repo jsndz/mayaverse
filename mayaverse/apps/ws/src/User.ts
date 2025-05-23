@@ -133,7 +133,7 @@ export class User {
           });
           break;
 
-        case "chat":
+        case "chat": {
           const recieverId = parsedData.payload.recieverId;
           const msg = parsedData.payload.message;
           const messageId = parsedData.payload.messageId;
@@ -150,6 +150,22 @@ export class User {
             this.spaceId!,
             recieverId
           );
+        }
+        case "offer-video-call": {
+          const offer = parsedData.payload.offer;
+          const recieverId = parsedData.payload.recieverId;
+          RoomManager.getInstance().chat(
+            {
+              type: "video-request",
+              payload: {
+                offer,
+              },
+              senderId: this.userId,
+            },
+            this.spaceId!,
+            recieverId
+          );
+        }
       }
     });
   }
