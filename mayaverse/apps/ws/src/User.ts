@@ -166,6 +166,21 @@ export class User {
             recieverId
           );
         }
+        case "video-answer": {
+          const answer = parsedData.payload.answer;
+          const recieverId = parsedData.to;
+          RoomManager.getInstance().chat(
+            {
+              type: "answer-video-request",
+              payload: {
+                answer,
+              },
+              senderId: this.userId,
+            },
+            this.spaceId!,
+            recieverId
+          );
+        }
       }
     });
   }

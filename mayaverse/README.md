@@ -1,17 +1,17 @@
 User Flow for One-to-One WebRTC Call
 🧑‍💻 User Flow
 
-    User A opens chat with User B
+    User A opens chat with User B [x]
 
-    Clicks Video Call Button
+    Clicks Video Call Button[x]
 
-    User A creates an SDP offer (via RTCPeerConnection.createOffer)
+    User A creates an SDP offer (via RTCPeerConnection.createOffer) [x]
 
-    Offer sent via signaling (WebSocket) to TS backend
+    Offer sent via signaling (WebSocket) to TS backend [x]
 
-    TS backend forwards the offer to User B
+    TS backend forwards the offer to User B [x]
 
-    User B receives call prompt (UI popup: Accept / Reject)
+    User B receives call prompt (UI popup: Accept / Reject) [x]
 
     If User B accepts:
 

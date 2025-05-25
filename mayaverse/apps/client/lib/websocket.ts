@@ -134,7 +134,7 @@ export const handleChatEvents = (
   setMessages: Dispatch<SetStateAction<Chats[]>>,
   currentUserId: string | undefined
 ) => {
-  const { setIncomingCall, setOffer } = useCallStore.getState();
+  const { setIncomingCall, setOffer, setAnswer } = useCallStore.getState();
   switch (message.type) {
     case "chat-message":
       let incomingMessageId = message.payload.messageId;
@@ -171,6 +171,10 @@ export const handleChatEvents = (
     case "video-request":
       setIncomingCall(message.senderId);
       setOffer(message.payload.offer);
+      break;
+    case "answer-video-request": {
+      setAnswer(message.payload.answer);
+    }
     default:
       break;
   }

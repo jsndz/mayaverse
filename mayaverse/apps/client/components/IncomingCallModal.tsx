@@ -1,10 +1,57 @@
 import { useCallStore } from "@/store/useCallStore";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
 import { useRouter } from "next/navigation";
+type RTCSignalMessage = {
+  type: "video-answer";
+  payload: {
+    answer: RTCSessionDescriptionInit;
+  };
+  to: string;
+};
+export const handleIncomingOffer = async (
+  offer: RTCSessionDescriptionInit,
+  callerId: string,
+  socket: WebSocket | null,
+  config: RTCConfiguration
+) => {
+  const peerConnection = new RTCPeerConnection(config);
 
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+
+  const answer = await peerConnection.createAnswer();
+
+  await peerConnection.setLocalDescription(answer);
+
+  const signalMessage: RTCSignalMessage = {
+    type: "video-answer",
+    payload: {
+      answer: peerConnection.localDescription!,
+    },
+    to: callerId,
+  };
+
+  socket?.send(JSON.stringify(signalMessage));
+};
 export function IncomingCallModal() {
   const { incomingCall, showModal, clearCall } = useCallStore();
+  const { socket } = useWebSocketStore();
+
   if (!showModal || !incomingCall) return null;
+  const configuration = {
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  };
+
+  const init = async () => {
+    const rawOfferWrapper = useCallStore.getState().offer;
+
+    if (!rawOfferWrapper || !rawOfferWrapper.offer) {
+      console.error("No valid offer found");
+      return;
+    }
+
+    const offer: RTCSessionDescriptionInit = rawOfferWrapper.offer;
+    handleIncomingOffer(offer, incomingCall.from, socket, configuration);
+  };
   const router = useRouter();
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -14,7 +61,8 @@ export function IncomingCallModal() {
         </p>
         <div className="flex gap-4 mt-4">
           <button
-            onClick={() => {
+            onClick={async () => {
+              await init();
               router.push(`/video/${incomingCall.from}`);
               clearCall();
             }}
