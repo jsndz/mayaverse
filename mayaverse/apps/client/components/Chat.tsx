@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChatProps, Chats, User } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 const Chat: React.FC<ChatProps> = ({
   users,
@@ -34,9 +35,9 @@ const Chat: React.FC<ChatProps> = ({
   messages,
   setSelectedConversation,
   handleMessage,
-  handleVideoCall,
 }) => {
   const [text, setText] = useState<string>("");
+  const router = useRouter();
 
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background">
@@ -160,7 +161,11 @@ const Chat: React.FC<ChatProps> = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={handleVideoCall}
+                      onClick={() => {
+                        router.push(
+                          `/spaces/video/${selectedConversation?.id}`
+                        );
+                      }}
                     >
                       <IconVideo className="h-5 w-5" />
                     </Button>

@@ -166,6 +166,7 @@ export class User {
             recieverId
           );
         }
+
         case "video-answer": {
           const answer = parsedData.payload.answer;
           const recieverId = parsedData.to;
@@ -180,6 +181,7 @@ export class User {
             this.spaceId!,
             recieverId
           );
+          break;
         }
       }
     });

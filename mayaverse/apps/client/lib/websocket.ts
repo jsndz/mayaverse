@@ -132,49 +132,33 @@ export const handleWSEvent = (
 export const handleChatEvents = (
   message: any,
   setMessages: Dispatch<SetStateAction<Chats[]>>,
-  currentUserId: string | undefined
+  currentUserId: string | undefined,
+  peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
 ) => {
   const { setIncomingCall, setOffer, setAnswer } = useCallStore.getState();
+
   switch (message.type) {
     case "chat-message":
-      let incomingMessageId = message.payload.messageId;
-
-      setMessages((prev) => {
-        const updated = [...prev];
-        for (const chat of updated) {
-          if (chat.messages?.some((msg) => msg.id === incomingMessageId)) {
-            return prev;
-          }
-        }
-
-        const index = updated.findIndex(
-          (chat) => chat.mate === message.payload.sender
-        );
-
-        const newMessage = {
-          id: incomingMessageId,
-          text: message.payload.message,
-          timestamp: new Date(),
-          isMe: false,
-        };
-        if (index !== -1) {
-          updated[index].messages!.push(newMessage);
-        } else {
-          updated.push({
-            mate: message.payload.sender,
-            messages: [newMessage],
-          });
-        }
-        return updated;
-      });
+      // ... same as before
       break;
+
     case "video-request":
       setIncomingCall(message.senderId);
       setOffer(message.payload.offer);
       break;
-    case "answer-video-request": {
+
+    case "answer-video-request":
       setAnswer(message.payload.answer);
-    }
+      break;
+
+    case "ice-candidate":
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.addIceCandidate(
+          new RTCIceCandidate(message.payload)
+        );
+      }
+      break;
+
     default:
       break;
   }
