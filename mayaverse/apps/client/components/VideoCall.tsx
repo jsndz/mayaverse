@@ -1,12 +1,14 @@
 "use client";
 
+import React, { useEffect, useRef } from "react";
 import { useCallStore } from "@/store/useCallStore";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
-import { useParams } from "next/navigation";
-import React, { useEffect, useRef } from "react";
 
-const Page = () => {
-  const { id } = useParams<{ id: string }>();
+interface VideoCallProps {
+  peerId: string;
+}
+
+const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
   const { socket, peerConn } = useWebSocketStore();
   const { answer } = useCallStore();
 
@@ -14,39 +16,40 @@ const Page = () => {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   const handleVideoCall = async () => {
-    console.log(" Video call initiated");
-    console.log(peerConn, "peerConn in video call");
-    console.log(id, "id in video call");
-    console.log(socket, "socket in video call");
+    console.log("📞 Video call initiated");
+    console.log("peerConn:", peerConn);
+    console.log("peerId:", peerId);
+    console.log("socket:", socket);
 
     const offer = await peerConn?.createOffer();
     await peerConn?.setLocalDescription(offer);
-    console.log("Sending offer to", id, "with offer:", offer);
+
+    console.log("Sending offer to", peerId, "with offer:", offer);
+
     if (socket?.readyState === WebSocket.OPEN) {
-      socket?.send(
+      socket.send(
         JSON.stringify({
           type: "offer-video-call",
           payload: {
             offer,
-            recieverId: id,
+            recieverId: peerId,
           },
         })
       );
+      console.log("✅ Offer sent");
     } else {
-      console.warn("WebSocket is not open. Cannot send message.");
+      console.warn("❌ WebSocket is not open. Cannot send offer.");
     }
-
-    console.log("sent");
 
     if (!peerConn) return;
 
     peerConn.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket?.send(
+      if (event.candidate && socket?.readyState === WebSocket.OPEN) {
+        socket.send(
           JSON.stringify({
             type: "ice-candidate",
             payload: event.candidate,
-            to: id,
+            to: peerId,
           })
         );
       }
@@ -59,17 +62,21 @@ const Page = () => {
       }
     };
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
 
-    stream.getTracks().forEach((track) => {
-      peerConn.addTrack(track, stream);
-    });
+      stream.getTracks().forEach((track) => {
+        peerConn.addTrack(track, stream);
+      });
 
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = stream;
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error("❌ Error accessing media devices:", err);
     }
   };
 
@@ -78,7 +85,7 @@ const Page = () => {
 
     if (!answer || !peerConn) return;
 
-    console.log("Setting remote description with answer");
+    console.log("✅ Setting remote description with answer");
 
     if (answer?.answer) {
       peerConn.setRemoteDescription(new RTCSessionDescription(answer.answer));
@@ -87,7 +94,7 @@ const Page = () => {
 
   return (
     <div className="p-4 text-white">
-      <h2>🎥 In call with {id}</h2>
+      <h2>🎥 In call with {peerId}</h2>
       <div className="flex gap-4 mt-4">
         <video
           ref={localVideoRef}
@@ -107,4 +114,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default VideoCall;

@@ -20,6 +20,7 @@ import {
 } from "@/lib/websocket";
 import { links } from "@/components/constants";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
+import VideoCall from "@/components/VideoCall";
 
 export default function Space() {
   const { id: spaceId } = useParams<{ id: string }>();
@@ -66,6 +67,7 @@ export default function Space() {
   useEffect(() => {
     const peerConnection = new RTCPeerConnection(configuration);
     peerConnectionRef.current = peerConnection;
+    console.log("peer connection created", peerConnection);
     setPeerConn(peerConnection);
     getSpace();
 
@@ -206,12 +208,14 @@ export default function Space() {
               setMessages={setMessages}
               setSelectedConversation={setSelectedConversation}
               handleMessage={handleMessage}
+              setPage={setPage}
             />
           )}
 
-          {/* 
-          {page === Page.members && <SpaceMembers spaceId={spaceId} />}
-          {page === Page.settings && <SpaceSettings spaceId={spaceId} />} */}
+          {page === Page.members && (
+            <VideoCall peerId={selectedConversation?.id!} />
+          )}
+          {/* {page === Page.settings && <SpaceSettings spaceId={spaceId} />} */}
         </div>
       </main>
     </div>

@@ -109,7 +109,7 @@ export function IncomingCallModal() {
           <button
             onClick={async () => {
               await init();
-              // router.push(`/spaces/video/${incomingCall.from}`);
+              router.push(`/spaces/video/${incomingCall.from}`);
               clearCall();
             }}
             className="bg-green-500 text-white px-4 py-2 rounded"

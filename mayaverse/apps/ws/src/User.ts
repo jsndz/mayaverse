@@ -154,6 +154,8 @@ export class User {
         case "offer-video-call": {
           const offer = parsedData.payload.offer;
           const recieverId = parsedData.payload.recieverId;
+          console.log("offer-video-call", parsedData.payload);
+
           RoomManager.getInstance().chat(
             {
               type: "video-request",

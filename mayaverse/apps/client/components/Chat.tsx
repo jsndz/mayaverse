@@ -25,7 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChatProps, Chats, User } from "@/lib/types";
+import { ChatProps, Chats, User, Page } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
 const Chat: React.FC<ChatProps> = ({
@@ -35,6 +35,7 @@ const Chat: React.FC<ChatProps> = ({
   messages,
   setSelectedConversation,
   handleMessage,
+  setPage,
 }) => {
   const [text, setText] = useState<string>("");
   const router = useRouter();
@@ -162,9 +163,7 @@ const Chat: React.FC<ChatProps> = ({
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        router.push(
-                          `/spaces/video/${selectedConversation?.id}`
-                        );
+                        setPage(Page.members);
                       }}
                     >
                       <IconVideo className="h-5 w-5" />

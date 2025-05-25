@@ -48,5 +48,6 @@ export class RoomManager {
         ?.find((u) => u.userId == recieverId)
         ?.send(message);
     }
+    console.log("message through chat", message);
   }
 }

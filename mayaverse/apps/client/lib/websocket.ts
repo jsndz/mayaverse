@@ -139,10 +139,41 @@ export const handleChatEvents = (
 
   switch (message.type) {
     case "chat-message":
-      // ... same as before
+      let incomingMessageId = message.payload.messageId;
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        for (const chat of updated) {
+          if (chat.messages?.some((msg) => msg.id === incomingMessageId)) {
+            return prev;
+          }
+        }
+
+        const index = updated.findIndex(
+          (chat) => chat.mate === message.payload.sender
+        );
+
+        const newMessage = {
+          id: incomingMessageId,
+          text: message.payload.message,
+          timestamp: new Date(),
+          isMe: false,
+        };
+        if (index !== -1) {
+          updated[index].messages!.push(newMessage);
+        } else {
+          updated.push({
+            mate: message.payload.sender,
+            messages: [newMessage],
+          });
+        }
+        return updated;
+      });
       break;
 
     case "video-request":
+      console.log("Incoming video request:", message);
+
       setIncomingCall(message.senderId);
       setOffer(message.payload.offer);
       break;
