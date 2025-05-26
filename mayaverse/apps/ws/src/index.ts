@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws";
 import { User } from "./User";
 
-const wss = new WebSocketServer({ port: 3002 });
+const wss = new WebSocketServer({ port: 3002, host: "0.0.0.0" });
 
 wss.on("connection", function connection(ws) {
   let user = new User(ws);
@@ -11,3 +11,5 @@ wss.on("connection", function connection(ws) {
     user?.destroy();
   });
 });
+
+console.log("WebSocket server running at ws://192.168.79.197:3002");

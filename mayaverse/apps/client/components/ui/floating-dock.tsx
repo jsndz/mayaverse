@@ -21,7 +21,7 @@ export const FloatingDock = ({
   items: { title: string; icon: React.ReactNode; href: Page }[];
   desktopClassName?: string;
   mobileClassName?: string;
-  setPage: Dispatch<SetStateAction<Page>>;
+  setPage: (page: Page) => void;
 }) => {
   return (
     <>
@@ -46,7 +46,7 @@ const FloatingDockMobile = ({
 }: {
   items: { title: string; icon: React.ReactNode; href: Page }[];
   className?: string;
-  setPage: Dispatch<SetStateAction<Page>>;
+  setPage: (page: Page) => void;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -105,7 +105,7 @@ const FloatingDockDesktop = ({
 }: {
   items: { title: string; icon: React.ReactNode; href: Page }[];
   className?: string;
-  setPage: Dispatch<SetStateAction<Page>>;
+  setPage: (page: Page) => void;
 }) => {
   let mouseX = useMotionValue(Infinity);
   return (

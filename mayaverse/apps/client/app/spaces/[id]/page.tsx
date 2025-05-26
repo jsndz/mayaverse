@@ -21,6 +21,7 @@ import {
 import { links } from "@/components/constants";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
 import VideoCall from "@/components/VideoCall";
+import { usePageStore } from "@/store/usePage";
 
 export default function Space() {
   const { id: spaceId } = useParams<{ id: string }>();
@@ -29,7 +30,7 @@ export default function Space() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [spaceDimension, setSpaceDimension] = useState<string>();
-  const [page, setPage] = useState<Page>(Page.arena);
+  const { page, setPage } = usePageStore();
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<Map<string, User>>(new Map());

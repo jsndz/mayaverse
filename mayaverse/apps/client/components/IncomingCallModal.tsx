@@ -1,9 +1,10 @@
 "use client";
 
+import { Page } from "@/lib/types";
 import { useCallStore } from "@/store/useCallStore";
+import { usePageStore } from "@/store/usePage";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
 type RTCSignalMessage = {
   type: "video-answer";
   payload: {
@@ -15,66 +16,34 @@ export const handleIncomingOffer = async (
   offer: RTCSessionDescriptionInit,
   callerId: string,
   socket: WebSocket | null,
-  config: RTCConfiguration,
-  remoteVideoRef: React.RefObject<HTMLVideoElement>,
-  localVideoRef: React.RefObject<HTMLVideoElement>
+  config: RTCConfiguration
 ) => {
   const peerConnection = new RTCPeerConnection(config);
 
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true,
-  });
+  try {
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
 
-  stream.getTracks().forEach((track) => {
-    peerConnection.addTrack(track, stream);
-  });
+    const signalMessage: RTCSignalMessage = {
+      type: "video-answer",
+      payload: {
+        answer: peerConnection.localDescription!,
+      },
+      to: callerId,
+    };
 
-  if (localVideoRef.current) {
-    localVideoRef.current.srcObject = stream;
+    socket?.send(JSON.stringify(signalMessage));
+  } catch (err) {
+    console.error("Error accessing media devices:", err);
   }
-
-  peerConnection.ontrack = (event) => {
-    const remoteStream = event.streams[0];
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = remoteStream;
-    }
-  };
-
-  peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-      socket?.send(
-        JSON.stringify({
-          type: "ice-candidate",
-          payload: event.candidate,
-          to: callerId,
-        })
-      );
-    }
-  };
-
-  await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-  const answer = await peerConnection.createAnswer();
-  await peerConnection.setLocalDescription(answer);
-
-  const signalMessage: RTCSignalMessage = {
-    type: "video-answer",
-    payload: {
-      answer: peerConnection.localDescription!,
-    },
-    to: callerId,
-  };
-
-  socket?.send(JSON.stringify(signalMessage));
 };
 
 export function IncomingCallModal() {
   const { incomingCall, showModal, clearCall } = useCallStore();
   const { socket } = useWebSocketStore();
   const router = useRouter();
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const localVideoRef = useRef<HTMLVideoElement>(null);
-
+  const { page, setPage } = usePageStore();
   if (!showModal || !incomingCall) return null;
 
   const configuration = {
@@ -89,14 +58,7 @@ export function IncomingCallModal() {
     }
 
     const offer: RTCSessionDescriptionInit = rawOfferWrapper.offer;
-    await handleIncomingOffer(
-      offer,
-      incomingCall.from,
-      socket,
-      configuration,
-      remoteVideoRef,
-      localVideoRef
-    );
+    await handleIncomingOffer(offer, incomingCall.from, socket, configuration);
   };
 
   return (
@@ -109,8 +71,7 @@ export function IncomingCallModal() {
           <button
             onClick={async () => {
               await init();
-              router.push(`/spaces/video/${incomingCall.from}`);
-              clearCall();
+              setPage(Page.members);
             }}
             className="bg-green-500 text-white px-4 py-2 rounded"
           >
@@ -122,21 +83,6 @@ export function IncomingCallModal() {
           >
             Decline
           </button>
-        </div>
-        <div className="flex gap-4 mt-4">
-          <video
-            ref={localVideoRef}
-            autoPlay
-            muted
-            playsInline
-            className="w-48 h-32 bg-black"
-          />
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-            className="w-48 h-32 bg-black"
-          />
         </div>
       </div>
     </div>

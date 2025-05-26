@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCallStore } from "@/store/useCallStore";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
 
@@ -14,32 +14,13 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   const handleVideoCall = async () => {
     console.log("📞 Video call initiated");
     console.log("peerConn:", peerConn);
     console.log("peerId:", peerId);
     console.log("socket:", socket);
-
-    const offer = await peerConn?.createOffer();
-    await peerConn?.setLocalDescription(offer);
-
-    console.log("Sending offer to", peerId, "with offer:", offer);
-
-    if (socket?.readyState === WebSocket.OPEN) {
-      socket.send(
-        JSON.stringify({
-          type: "offer-video-call",
-          payload: {
-            offer,
-            recieverId: peerId,
-          },
-        })
-      );
-      console.log("✅ Offer sent");
-    } else {
-      console.warn("❌ WebSocket is not open. Cannot send offer.");
-    }
 
     if (!peerConn) return;
 
@@ -62,35 +43,38 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
       }
     };
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-
-      stream.getTracks().forEach((track) => {
-        peerConn.addTrack(track, stream);
-      });
-
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-    } catch (err) {
-      console.error("❌ Error accessing media devices:", err);
+    if (localVideoRef.current) {
+      localVideoRef.current.srcObject = stream;
     }
   };
-
   useEffect(() => {
-    handleVideoCall();
+    const getMedia = async () => {
+      if (
+        typeof window !== "undefined" &&
+        typeof navigator !== "undefined" &&
+        navigator.mediaDevices?.getUserMedia
+      ) {
+        try {
+          const mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          setStream(mediaStream);
+          if (localVideoRef.current) {
+            localVideoRef.current.srcObject = mediaStream;
+          }
+        } catch (err) {
+          console.error("❌ Error accessing media devices:", err);
+        }
+      } else {
+        console.warn(
+          "❌ navigator.mediaDevices.getUserMedia is not available."
+        );
+      }
+    };
 
-    if (!answer || !peerConn) return;
-
-    console.log("✅ Setting remote description with answer");
-
-    if (answer?.answer) {
-      peerConn.setRemoteDescription(new RTCSessionDescription(answer.answer));
-    }
-  }, [answer]);
+    getMedia();
+  }, []);
 
   return (
     <div className="p-4 text-white">

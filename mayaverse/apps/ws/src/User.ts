@@ -172,6 +172,8 @@ export class User {
         case "video-answer": {
           const answer = parsedData.payload.answer;
           const recieverId = parsedData.to;
+          console.log("video-answer", parsedData.payload);
+
           RoomManager.getInstance().chat(
             {
               type: "answer-video-request",

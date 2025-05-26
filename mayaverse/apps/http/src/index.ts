@@ -10,6 +10,7 @@ const corsOptions = {
       CLIENT_URL_DEV,
       CLIENT_URL_PROD,
       "http://localhost:3001",
+      "http://192.168.79.197:3000",
       undefined,
     ];
     if (!origin || allowedOrigins.includes(origin)) {
@@ -27,8 +28,11 @@ const app = express();
 app.use(express.json());
 
 app.use(cors(corsOptions));
-
+app.get("/", (req, res) => {
+  console.log("hello");
+  res.send("Welcome to the API");
+});
 app.use("/api/v1", router);
-app.listen(PORT, () => {
-  console.log(`server running in ${PORT}`);
+app.listen(Number(PORT), "0.0.0.0", () => {
+  console.log(`server running in http://192.168.79.197:${PORT}`);
 });

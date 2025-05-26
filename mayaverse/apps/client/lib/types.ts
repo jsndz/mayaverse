@@ -58,7 +58,7 @@ export interface ChatProps {
   setMessages: Dispatch<SetStateAction<Chats[]>>;
   setSelectedConversation: Dispatch<SetStateAction<User | undefined>>;
   handleMessage: (message: string) => void;
-  setPage: Dispatch<SetStateAction<Page>>;
+  setPage: (page: Page) => void;
 }
 export interface Chats {
   mate: string | undefined;

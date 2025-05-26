@@ -25,8 +25,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChatProps, Chats, User, Page } from "@/lib/types";
+import { ChatProps, Chats, Page } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import CallingModal from "./CallingModal";
 
 const Chat: React.FC<ChatProps> = ({
   users,
@@ -39,9 +40,13 @@ const Chat: React.FC<ChatProps> = ({
 }) => {
   const [text, setText] = useState<string>("");
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background">
+      {showModal && (
+        <CallingModal peerId={selectedConversation?.id} setPage={setPage} />
+      )}
       {/* Sidebar */}
       <div className="w-80 border-r border-border flex flex-col">
         {/* Search Bar */}
@@ -163,7 +168,8 @@ const Chat: React.FC<ChatProps> = ({
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        setPage(Page.members);
+                        setShowModal(true);
+                        // setPage(Page.members);
                       }}
                     >
                       <IconVideo className="h-5 w-5" />
