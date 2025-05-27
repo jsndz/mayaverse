@@ -12,6 +12,8 @@ const CallingModal: React.FC<VideoCallProps> = ({ peerId, setPage }) => {
   const { answer } = useCallStore();
 
   const call = async () => {
+    console.log("Calling peer:", peerConn);
+
     const offer = await peerConn?.createOffer();
     await peerConn?.setLocalDescription(offer);
     console.log("Sending offer to", peerId, "with offer:", offer);
@@ -32,6 +34,7 @@ const CallingModal: React.FC<VideoCallProps> = ({ peerId, setPage }) => {
   };
   useEffect(() => {
     call();
+    console.log(answer);
 
     if (!answer || !peerConn) return;
 

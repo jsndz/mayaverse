@@ -12,4 +12,4 @@ wss.on("connection", function connection(ws) {
   });
 });
 
-console.log("WebSocket server running at ws://192.168.79.197:3002");
+console.log("WebSocket server running at ws://localhost:3002");

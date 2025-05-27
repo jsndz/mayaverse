@@ -6,8 +6,8 @@ type CallState = {
   answer: null | { answer: RTCSessionDescriptionInit | null };
 
   showModal: boolean;
-  setIncomingCall: (from: string) => void;
-  setOffer: (offer: any) => void;
+  setIncomingCall: (from: string, offer: RTCSessionDescriptionInit) => void;
+
   setAnswer: (answer: any) => void;
   clearCall: () => void;
 };
@@ -18,15 +18,16 @@ export const useCallStore = create<CallState>((set) => ({
   answer: null,
   showModal: false,
 
-  setIncomingCall: (from) => set({ incomingCall: { from }, showModal: true }),
+  setIncomingCall: (from, offer) =>
+    set({ incomingCall: { from }, showModal: true, offer: { offer } }),
 
-  setOffer: (offer) => set({ offer: { offer } }),
   setAnswer: (answer) => set({ answer: { answer } }),
 
   clearCall: () =>
     set({
       incomingCall: null,
       offer: null,
+      answer: null,
       showModal: false,
     }),
 }));

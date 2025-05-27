@@ -9,8 +9,7 @@ const corsOptions = {
     const allowedOrigins = [
       CLIENT_URL_DEV,
       CLIENT_URL_PROD,
-      "http://localhost:3001",
-      "http://192.168.79.197:3000",
+      "http://localhost:3000",
       undefined,
     ];
     if (!origin || allowedOrigins.includes(origin)) {
@@ -34,5 +33,5 @@ app.get("/", (req, res) => {
 });
 app.use("/api/v1", router);
 app.listen(Number(PORT), "0.0.0.0", () => {
-  console.log(`server running in http://192.168.79.197:${PORT}`);
+  console.log(`server running in http://localhost:${PORT} `);
 });

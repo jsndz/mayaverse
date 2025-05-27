@@ -169,7 +169,6 @@ const Chat: React.FC<ChatProps> = ({
                       size="icon"
                       onClick={() => {
                         setShowModal(true);
-                        // setPage(Page.members);
                       }}
                     >
                       <IconVideo className="h-5 w-5" />

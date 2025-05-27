@@ -135,7 +135,7 @@ export const handleChatEvents = (
   currentUserId: string | undefined,
   peerConnectionRef: React.MutableRefObject<RTCPeerConnection | null>
 ) => {
-  const { setIncomingCall, setOffer, setAnswer } = useCallStore.getState();
+  const { setIncomingCall, setAnswer } = useCallStore.getState();
 
   switch (message.type) {
     case "chat-message":
@@ -174,8 +174,7 @@ export const handleChatEvents = (
     case "video-request":
       console.log("Incoming video request:", message);
 
-      setIncomingCall(message.senderId);
-      setOffer(message.payload.offer);
+      setIncomingCall(message.senderId, message.payload.offer);
       break;
 
     case "answer-video-request":

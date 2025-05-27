@@ -21,6 +21,9 @@ export const handleIncomingOffer = async (
   const peerConnection = new RTCPeerConnection(config);
 
   try {
+    console.log("Calling peer here:", peerConnection);
+    console.log("offer received from server mde", offer);
+
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
@@ -56,9 +59,12 @@ export function IncomingCallModal() {
       console.error("No valid offer found");
       return;
     }
+    console.log("offer sent from server", rawOfferWrapper.offer);
 
     const offer: RTCSessionDescriptionInit = rawOfferWrapper.offer;
     await handleIncomingOffer(offer, incomingCall.from, socket, configuration);
+
+    setPage(Page.members);
   };
 
   return (
@@ -69,14 +75,12 @@ export function IncomingCallModal() {
         </p>
         <div className="flex gap-4 mt-4">
           <button
-            onClick={async () => {
-              await init();
-              setPage(Page.members);
-            }}
+            onClick={init}
             className="bg-green-500 text-white px-4 py-2 rounded"
           >
             Accept
           </button>
+
           <button
             onClick={() => clearCall()}
             className="bg-red-500 text-white px-4 py-2 rounded"

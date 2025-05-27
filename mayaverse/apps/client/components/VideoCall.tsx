@@ -10,8 +10,6 @@ interface VideoCallProps {
 
 const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
   const { socket, peerConn } = useWebSocketStore();
-  const { answer } = useCallStore();
-
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -22,7 +20,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
     console.log("peerId:", peerId);
     console.log("socket:", socket);
 
-    if (!peerConn) return;
+    if (!peerConn || !stream) return;
 
     peerConn.onicecandidate = (event) => {
       if (event.candidate && socket?.readyState === WebSocket.OPEN) {
@@ -43,10 +41,15 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
       }
     };
 
+    stream.getTracks().forEach((track) => {
+      peerConn.addTrack(track, stream);
+    });
+
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = stream;
     }
   };
+
   useEffect(() => {
     const getMedia = async () => {
       if (
@@ -75,6 +78,20 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
 
     getMedia();
   }, []);
+
+  // Start the call after stream is ready
+  useEffect(() => {
+    if (stream) {
+      handleVideoCall();
+    }
+  }, [stream]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stream?.getTracks().forEach((track) => track.stop());
+    };
+  }, [stream]);
 
   return (
     <div className="p-4 text-white">
