@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useCallStore } from "@/store/useCallStore";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
+import { getOrCreateLocalStream } from "@/lib/getOrCreateLocalStream";
+import { useStreamStore } from "@/store/useStreamStore";
 
 interface VideoCallProps {
   peerId: string;
@@ -12,15 +14,10 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
   const { socket, peerConn } = useWebSocketStore();
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  const { localStream, remoteStream, setLocalStream } = useStreamStore();
 
   const handleVideoCall = async () => {
-    console.log("📞 Video call initiated");
-    console.log("peerConn:", peerConn);
-    console.log("peerId:", peerId);
-    console.log("socket:", socket);
-
-    if (!peerConn || !stream) return;
+    if (!peerConn || !localStream) return;
 
     peerConn.onicecandidate = (event) => {
       if (event.candidate && socket?.readyState === WebSocket.OPEN) {
@@ -41,38 +38,21 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
       }
     };
 
-    stream.getTracks().forEach((track) => {
-      peerConn.addTrack(track, stream);
-    });
-
     if (localVideoRef.current) {
-      localVideoRef.current.srcObject = stream;
+      localVideoRef.current.srcObject = localStream;
     }
   };
 
   useEffect(() => {
     const getMedia = async () => {
-      if (
-        typeof window !== "undefined" &&
-        typeof navigator !== "undefined" &&
-        navigator.mediaDevices?.getUserMedia
-      ) {
-        try {
-          const mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true,
-          });
-          setStream(mediaStream);
-          if (localVideoRef.current) {
-            localVideoRef.current.srcObject = mediaStream;
-          }
-        } catch (err) {
-          console.error("❌ Error accessing media devices:", err);
+      try {
+        const mediaStream = await getOrCreateLocalStream();
+        setLocalStream(mediaStream);
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = mediaStream;
         }
-      } else {
-        console.warn(
-          "❌ navigator.mediaDevices.getUserMedia is not available."
-        );
+      } catch (err) {
+        console.error("Error accessing media:", err);
       }
     };
 
@@ -80,16 +60,29 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
   }, []);
 
   useEffect(() => {
-    if (stream) {
+    if (localStream && localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream;
+    }
+  }, [localStream]);
+
+  useEffect(() => {
+    if (remoteStream && remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream]);
+
+  useEffect(() => {
+    if (localStream) {
       handleVideoCall();
     }
-  }, [stream]);
+  }, [localStream]);
 
   useEffect(() => {
     return () => {
-      stream?.getTracks().forEach((track) => track.stop());
+      localStream?.getTracks().forEach((track) => track.stop());
+      remoteStream?.getTracks().forEach((track) => track.stop());
     };
-  }, [stream]);
+  }, [localStream]);
 
   return (
     <div className="p-4 text-white">

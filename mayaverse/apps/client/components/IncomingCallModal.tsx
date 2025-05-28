@@ -7,6 +7,8 @@ import { usePageStore } from "@/store/usePage";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
 import { useRouter } from "next/navigation";
 import { configuration } from "@/constants";
+import { getOrCreateLocalStream } from "@/lib/getOrCreateLocalStream";
+import { useRef } from "react";
 type RTCSignalMessage = {
   type: "video-answer";
   payload: {
@@ -14,34 +16,32 @@ type RTCSignalMessage = {
   };
   to: string;
 };
-export const handleIncomingOffer = async (
+const handleIncomingOffer = async (
   offer: RTCSessionDescriptionInit,
   callerId: string,
   socket: WebSocket | null,
   config: RTCConfiguration
 ) => {
   const { setSocket, setPeerConn, peerConn } = useWebSocketStore.getState();
+  let tracksAdded = false;
 
   const { setLocalStream, setRemoteStream } = useStreamStore.getState();
   try {
-    console.log("Calling peer here:", peerConn);
-    console.log("offer received from server mde", offer);
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
+    const stream = await getOrCreateLocalStream();
 
     setLocalStream(stream);
-    stream.getTracks().forEach((track) => {
-      peerConn?.addTrack(track, stream);
-    });
+    if (!tracksAdded) {
+      stream.getTracks().forEach((track) => {
+        peerConn?.addTrack(track, stream);
+      });
+      tracksAdded = true;
+    }
+
     const remoteStream = new MediaStream();
     if (peerConn) {
       peerConn.ontrack = (event) => {
-        event.streams[0].getTracks().forEach((track) => {
-          remoteStream.addTrack(track);
-        });
-        setRemoteStream(remoteStream);
+        const stream = event.streams[0];
+        setRemoteStream(stream);
       };
     }
     await peerConn?.setRemoteDescription(new RTCSessionDescription(offer));
@@ -75,7 +75,6 @@ export function IncomingCallModal() {
       console.error("No valid offer found");
       return;
     }
-    console.log("offer sent from server", rawOfferWrapper.offer);
 
     const offer: RTCSessionDescriptionInit = rawOfferWrapper.offer;
     await handleIncomingOffer(offer, incomingCall.from, socket, configuration);
@@ -91,7 +90,10 @@ export function IncomingCallModal() {
         </p>
         <div className="flex gap-4 mt-4">
           <button
-            onClick={init}
+            onClick={() => {
+              init();
+              clearCall();
+            }}
             className="bg-green-500 text-white px-4 py-2 rounded"
           >
             Accept

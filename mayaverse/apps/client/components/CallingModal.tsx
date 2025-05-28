@@ -1,8 +1,9 @@
+import { getOrCreateLocalStream } from "@/lib/getOrCreateLocalStream";
 import { Page } from "@/lib/types";
 import { useCallStore } from "@/store/useCallStore";
 import { useStreamStore } from "@/store/useStreamStore";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 interface VideoCallProps {
   peerId: string;
@@ -13,31 +14,29 @@ const CallingModal: React.FC<VideoCallProps> = ({ peerId, setPage }) => {
   const { socket, peerConn } = useWebSocketStore();
   const { answer } = useCallStore();
   const { setLocalStream, setRemoteStream } = useStreamStore();
+  const tracksAddedRef = useRef(false);
   const call = async () => {
-    console.log("Calling peer:", peerConn);
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
+    const stream = await getOrCreateLocalStream();
 
     setLocalStream(stream);
-    stream.getTracks().forEach((track) => {
-      peerConn?.addTrack(track, stream);
-    });
+    if (!tracksAddedRef.current) {
+      stream.getTracks().forEach((track) => {
+        peerConn?.addTrack(track, stream);
+      });
+      tracksAddedRef.current = true;
+    }
+
     const remoteStream = new MediaStream();
 
     if (peerConn) {
       peerConn.ontrack = (event) => {
-        event.streams[0].getTracks().forEach((track) => {
-          remoteStream.addTrack(track);
-        });
-        setRemoteStream(remoteStream);
+        const stream = event.streams[0];
+        setRemoteStream(stream);
       };
     }
+
     const offer = await peerConn?.createOffer();
     await peerConn?.setLocalDescription(offer);
-
-    console.log("Sending offer to", peerId, "with offer:", offer);
 
     if (socket?.readyState === WebSocket.OPEN) {
       socket.send(
@@ -49,7 +48,6 @@ const CallingModal: React.FC<VideoCallProps> = ({ peerId, setPage }) => {
           },
         })
       );
-      console.log("✅ Offer sent");
     } else {
       console.warn("❌ WebSocket is not open. Cannot send offer.");
     }
@@ -60,10 +58,11 @@ const CallingModal: React.FC<VideoCallProps> = ({ peerId, setPage }) => {
   }, []);
 
   useEffect(() => {
-    if (!answer?.answer || peerConn?.remoteDescription) return;
+    if (peerConn?.signalingState === "stable") return;
 
-    console.log("✅ Setting remote description with answer");
-    peerConn?.setRemoteDescription(new RTCSessionDescription(answer.answer));
+    if (answer) {
+      peerConn?.setRemoteDescription(new RTCSessionDescription(answer.answer));
+    }
     setPage(Page.members);
   }, [answer]);
 

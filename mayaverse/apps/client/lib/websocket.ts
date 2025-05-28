@@ -172,8 +172,6 @@ export const handleChatEvents = (
       break;
 
     case "video-request":
-      console.log("Incoming video request:", message);
-
       setIncomingCall(message.senderId, message.payload.offer);
       break;
 
@@ -184,9 +182,10 @@ export const handleChatEvents = (
     case "ice-candidate":
       if (peerConnectionRef.current) {
         peerConnectionRef.current.addIceCandidate(
-          new RTCIceCandidate(message.payload)
+          new RTCIceCandidate(message.payload.candidate)
         );
       }
+
       break;
 
     default:

@@ -154,7 +154,6 @@ export class User {
         case "offer-video-call": {
           const offer = parsedData.payload.offer;
           const recieverId = parsedData.payload.recieverId;
-          console.log("offer-video-call", parsedData.payload);
 
           RoomManager.getInstance().chat(
             {
@@ -172,20 +171,36 @@ export class User {
         case "video-answer": {
           const answer = parsedData.payload.answer;
           const recieverId = parsedData.to;
-          console.log("video-answer", parsedData.payload);
 
+          if (answer != undefined) {
+            RoomManager.getInstance().chat(
+              {
+                type: "answer-video-request",
+                payload: {
+                  answer,
+                },
+                senderId: this.userId,
+              },
+              this.spaceId!,
+              recieverId
+            );
+          }
+          break;
+        }
+        case "ice-candidate": {
+          const candidate = parsedData.payload.candidate;
+          const recieverId = parsedData.to;
           RoomManager.getInstance().chat(
             {
-              type: "answer-video-request",
+              type: "ice-candidate",
               payload: {
-                answer,
+                candidate,
               },
               senderId: this.userId,
             },
             this.spaceId!,
             recieverId
           );
-          break;
         }
       }
     });

@@ -3,7 +3,7 @@ import { create } from "zustand";
 type CallState = {
   incomingCall: null | { from: string };
   offer: null | { offer: RTCSessionDescriptionInit | null };
-  answer: null | { answer: RTCSessionDescriptionInit | null };
+  answer: null | { answer: RTCSessionDescriptionInit };
 
   showModal: boolean;
   setIncomingCall: (from: string, offer: RTCSessionDescriptionInit) => void;

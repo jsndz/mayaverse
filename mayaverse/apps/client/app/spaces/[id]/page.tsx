@@ -60,11 +60,9 @@ export default function Space() {
       setIsLoading(false);
     }
   };
-  const initializedRef = useRef(false);
   useEffect(() => {
     const peerConnection = new RTCPeerConnection(configuration);
     peerConnectionRef.current = peerConnection;
-    console.log("peer connection created", peerConnection);
     setPeerConn(peerConnection);
     getSpace();
 
