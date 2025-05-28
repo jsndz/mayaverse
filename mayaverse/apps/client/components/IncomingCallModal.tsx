@@ -1,10 +1,12 @@
 "use client";
+import { useStreamStore } from "@/store/useStreamStore";
 
 import { Page } from "@/lib/types";
 import { useCallStore } from "@/store/useCallStore";
 import { usePageStore } from "@/store/usePage";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
 import { useRouter } from "next/navigation";
+import { configuration } from "@/constants";
 type RTCSignalMessage = {
   type: "video-answer";
   payload: {
@@ -18,20 +20,38 @@ export const handleIncomingOffer = async (
   socket: WebSocket | null,
   config: RTCConfiguration
 ) => {
-  const peerConnection = new RTCPeerConnection(config);
+  const { setSocket, setPeerConn, peerConn } = useWebSocketStore.getState();
 
+  const { setLocalStream, setRemoteStream } = useStreamStore.getState();
   try {
-    console.log("Calling peer here:", peerConnection);
+    console.log("Calling peer here:", peerConn);
     console.log("offer received from server mde", offer);
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
 
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
+    setLocalStream(stream);
+    stream.getTracks().forEach((track) => {
+      peerConn?.addTrack(track, stream);
+    });
+    const remoteStream = new MediaStream();
+    if (peerConn) {
+      peerConn.ontrack = (event) => {
+        event.streams[0].getTracks().forEach((track) => {
+          remoteStream.addTrack(track);
+        });
+        setRemoteStream(remoteStream);
+      };
+    }
+    await peerConn?.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConn?.createAnswer();
+    await peerConn?.setLocalDescription(answer);
 
     const signalMessage: RTCSignalMessage = {
       type: "video-answer",
       payload: {
-        answer: peerConnection.localDescription!,
+        answer: peerConn?.localDescription!,
       },
       to: callerId,
     };
@@ -48,10 +68,6 @@ export function IncomingCallModal() {
   const router = useRouter();
   const { page, setPage } = usePageStore();
   if (!showModal || !incomingCall) return null;
-
-  const configuration = {
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-  };
 
   const init = async () => {
     const rawOfferWrapper = useCallStore.getState().offer;

@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 
 import Arena from "@/components/Arena";
 import Chat from "@/components/Chat";
-
+import { configuration } from "@/constants";
 import { getSpaceData } from "@/endpoint/endpoint";
 import { Chats, Page, SpaceData, User } from "@/lib/types";
 import {
@@ -45,10 +45,6 @@ export default function Space() {
       : process.env.NEXT_PUBLIC_PROD_WS;
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
-  const configuration = {
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-  };
-
   const getSpace = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -64,7 +60,7 @@ export default function Space() {
       setIsLoading(false);
     }
   };
-
+  const initializedRef = useRef(false);
   useEffect(() => {
     const peerConnection = new RTCPeerConnection(configuration);
     peerConnectionRef.current = peerConnection;
@@ -107,7 +103,7 @@ export default function Space() {
       socket.close();
       wsref.current = null;
     };
-  }, [spaceId]);
+  }, []);
 
   const handleMessage = async (text: string) => {
     if (!wsref.current || isLoading || !selectedConversation) return;

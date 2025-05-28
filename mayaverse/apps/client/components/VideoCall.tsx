@@ -79,14 +79,12 @@ const VideoCall: React.FC<VideoCallProps> = ({ peerId }) => {
     getMedia();
   }, []);
 
-  // Start the call after stream is ready
   useEffect(() => {
     if (stream) {
       handleVideoCall();
     }
   }, [stream]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stream?.getTracks().forEach((track) => track.stop());
