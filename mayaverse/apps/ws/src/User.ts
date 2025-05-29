@@ -188,8 +188,9 @@ export class User {
           break;
         }
         case "ice-candidate": {
-          const candidate = parsedData.payload.candidate;
+          const candidate = parsedData.payload;
           const recieverId = parsedData.to;
+
           RoomManager.getInstance().chat(
             {
               type: "ice-candidate",
