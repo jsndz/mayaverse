@@ -66,7 +66,7 @@ export function IncomingCallModal() {
   const { incomingCall, showModal, clearCall } = useCallStore();
   const { socket } = useWebSocketStore();
   const router = useRouter();
-  const { page, setPage } = usePageStore();
+  const { page, setPage, setPeerId } = usePageStore();
   if (!showModal || !incomingCall) return null;
 
   const init = async () => {
@@ -78,7 +78,7 @@ export function IncomingCallModal() {
 
     const offer: RTCSessionDescriptionInit = rawOfferWrapper.offer;
     await handleIncomingOffer(offer, incomingCall.from, socket, configuration);
-
+    setPeerId(incomingCall.from);
     setPage(Page.members);
   };
 

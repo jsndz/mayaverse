@@ -60,6 +60,7 @@ export default function Space() {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     const peerConnection = new RTCPeerConnection(configuration);
     peerConnectionRef.current = peerConnection;
@@ -152,7 +153,7 @@ export default function Space() {
 
   if (isLoading || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="w-screen h-screen flex items-center justify-center bg-black text-white">
         <Loader />
       </div>
     );
@@ -160,7 +161,7 @@ export default function Space() {
 
   if (!spaceDimension) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <div className="w-screen h-screen flex flex-col items-center justify-center gap-4 bg-black text-white">
         <h2 className="text-xl font-semibold">Space Not Found</h2>
         <p className="text-muted-foreground">
           The requested space could not be found.
@@ -173,9 +174,9 @@ export default function Space() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      <main className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-center w-full">
+    <div className="w-screen h-screen overflow-hidden bg-black text-white">
+      <main className="w-full h-full px-4 py-4 flex flex-col">
+        <div className="w-full">
           <FloatingDock
             setPage={setPage}
             mobileClassName="translate-y-20"
@@ -183,7 +184,7 @@ export default function Space() {
           />
         </div>
 
-        <div className="mt-8">
+        <div className="flex-1 overflow-y-auto no-scrollbar">
           {page === Page.arena && currentUser && (
             <Arena
               currentUser={currentUser}
@@ -208,7 +209,7 @@ export default function Space() {
           )}
 
           {page === Page.members && (
-            <VideoCall peerId={selectedConversation?.id!} />
+            <VideoCall PID={selectedConversation?.id!} />
           )}
         </div>
       </main>
