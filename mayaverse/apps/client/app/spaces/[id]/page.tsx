@@ -210,7 +210,6 @@ export default function Space() {
           {page === Page.members && (
             <VideoCall peerId={selectedConversation?.id!} />
           )}
-          {/* {page === Page.settings && <SpaceSettings spaceId={spaceId} />} */}
         </div>
       </main>
     </div>

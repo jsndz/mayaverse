@@ -22,7 +22,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import axios, { getAdapter } from "axios";
 import { createAvatar, deleteAvatar, getAvatars } from "@/endpoint/endpoint";
 
 interface Avatar {
@@ -34,7 +33,6 @@ interface Avatar {
 export default function AdminAvatars() {
   const { toast } = useToast();
   const token = localStorage.getItem("token");
-
   const [avatars, setAvatars] = useState<Avatar[]>([]);
 
   const handleAddAvatar = async (imageUrl: string, name: string) => {
@@ -53,11 +51,11 @@ export default function AdminAvatars() {
     setAvatars(avatars.filter((avatar) => avatar.id !== id));
     toast({ title: "Success", description: "Avatar deleted successfully!" });
   };
+
   useEffect(() => {
     async function fetchAvatars() {
       try {
         const res = await getAvatars();
-
         if (res && Array.isArray(res.avatars)) {
           setAvatars(res.avatars);
         }
@@ -67,21 +65,24 @@ export default function AdminAvatars() {
     }
     fetchAvatars();
   }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      <header className="border-b">
-        <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Manage Avatars</h1>
+    <div className="min-h-screen bg-black text-white">
+      <header className="border-b border-gray-800 bg-[#0f0f0f] shadow-lg">
+        <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
+          <h1 className="text-3xl font-bold tracking-tight">Manage Avatars</h1>
           <Dialog>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="bg-purple-600 hover:bg-purple-500 transition-colors shadow-md">
                 <Plus className="mr-2 h-4 w-4" /> Add Avatar
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-[#121212] text-white border border-gray-700">
               <DialogHeader>
-                <DialogTitle>Add New Avatar</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-xl font-semibold">
+                  Add New Avatar
+                </DialogTitle>
+                <DialogDescription className="text-gray-400">
                   Add a new avatar to the platform.
                 </DialogDescription>
               </DialogHeader>
@@ -107,6 +108,7 @@ export default function AdminAvatars() {
                     name="imageUrl"
                     placeholder="https://example.com/avatar.jpg"
                     required
+                    className="bg-[#1e1e1e] border-gray-700 text-white"
                   />
                 </div>
                 <div className="space-y-2">
@@ -116,25 +118,36 @@ export default function AdminAvatars() {
                     name="name"
                     placeholder="Avatar name"
                     required
+                    className="bg-[#1e1e1e] border-gray-700 text-white"
                   />
                 </div>
-                <Button type="submit">Add Avatar</Button>
+                <Button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-500 transition-colors w-full"
+                >
+                  Add Avatar
+                </Button>
               </form>
             </DialogContent>
           </Dialog>
         </nav>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main className="container mx-auto px-4 py-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {avatars.map((avatar) => (
-            <Card key={avatar.id}>
+            <Card
+              key={avatar.id}
+              className="bg-[#1a1a1a] border border-gray-700 text-white hover:shadow-xl transition-shadow"
+            >
               <CardHeader>
                 <CardTitle>{avatar.name}</CardTitle>
-                <CardDescription>ID: {avatar.id}</CardDescription>
+                <CardDescription className="text-gray-400">
+                  ID: {avatar.id}
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
+                <div className="relative aspect-square rounded-md overflow-hidden mb-4">
                   <Image
                     src={avatar.imageUrl}
                     alt={avatar.name}
@@ -144,7 +157,7 @@ export default function AdminAvatars() {
                 </div>
                 <Button
                   variant="destructive"
-                  className="w-full"
+                  className="w-full bg-red-600 hover:bg-red-500 transition-colors"
                   onClick={() => handleDeleteAvatar(avatar.id)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" /> Delete Avatar

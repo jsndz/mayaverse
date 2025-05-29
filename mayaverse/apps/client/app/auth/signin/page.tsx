@@ -21,15 +21,15 @@ import * as z from "zod";
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  username: z.string(),
+  username: z.string().min(1, "Username is required"),
 });
 
 type SignInForm = z.infer<typeof signInSchema>;
 
 export default function SignIn() {
   const router = useRouter();
-
   const { toast } = useToast();
+
   const {
     register,
     handleSubmit,
@@ -58,31 +58,32 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Sign In</CardTitle>
-          <CardDescription>
-            Welcome back! Sign in to your account to continue.
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted px-4">
+      <Card className="w-full max-w-sm shadow-xl rounded-2xl border-none">
+        <CardHeader className="text-center space-y-1">
+          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            Sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Username</Label>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="text"
+                id="username"
                 type="text"
-                placeholder="Happy"
+                placeholder="Enter your username"
                 {...register("username")}
               />
               {errors.username && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.username.message}
                 </p>
               )}
             </div>
-            <div className="space-y-2">
+
+            <div>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -91,30 +92,45 @@ export default function SignIn() {
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.email.message}
                 </p>
               )}
             </div>
-            <div className="space-y-2">
+
+            <div>
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" {...register("password")} />
+              <Input
+                id="password"
+                type="password"
+                placeholder="********"
+                {...register("password")}
+              />
               {errors.password && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.password.message}
                 </p>
               )}
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+
+            <Button
+              type="submit"
+              className="w-full font-semibold tracking-wide"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           </form>
-          <p className="text-center mt-4 text-sm text-muted-foreground">
+
+          <div className="mt-4 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-primary hover:underline">
+            <Link
+              href="/auth/signup"
+              className="text-primary font-medium hover:underline"
+            >
               Sign up
             </Link>
-          </p>
+          </div>
         </CardContent>
       </Card>
     </div>
