@@ -1,6 +1,6 @@
 # Mayaverse
 
-Mayaverse is a collaborative platform built using [Next.js](w) and [TypeScript](w), designed to create and manage virtual spaces. It leverages a monorepo structure with [Turborepo](w) for efficient development and build processes.
+Mayaverse is a collaborative platform for developers built using [Next.js](w) and [TypeScript](w), designed to create and manage virtual spaces. It leverages a monorepo structure with [Turborepo](w) for efficient development and build processes.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ Mayaverse is a collaborative platform built using [Next.js](w) and [TypeScript](
 Ensure you have the following installed:
 
 - [Node.js](w) (Latest LTS version recommended)
-- [pnpm](w) (Package manager)
+- [npm](w) (Package manager)
 - [Git](w)
 
 ### Installation
@@ -37,7 +37,7 @@ npm install
 To start the development server, run:
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to access the application.
@@ -45,9 +45,10 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to access th
 ## Features
 
 - **User Authentication**: Signup and Signin functionality.
-- **Virtual Spaces**: Create and manage virtual environments.
-- **Real-Time Collaboration**: Powered by [WebSockets](w).
-- **Responsive UI**: Designed using [Tailwind CSS](w).
+- **Virtual Spaces**: Create and manage virtual spaces.
+- **Real-Time Chat**: Chat with people in your virtual space. Powered by [WebSockets](w).
+- **Video chat**: One to One Video chat available.
+- **Minimalistic UI**: Designed using [Tailwind CSS](w).
 - **Type Safety**: Ensured with TypeScript.
 
 ## Technologies Used
@@ -76,10 +77,8 @@ mayaverse/
 
 ## Scripts
 
-- `npm dev` - Start the development server.
+- `npm run dev` - Start the development server.
 - `npm build` - Build the application for production.
-- `npm lint` - Run ESLint to check for code quality.
-- `npm format` - Format the code using Prettier.
 
 ## Contributing
 
