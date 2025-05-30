@@ -37,9 +37,12 @@ npm install
 To start the development server, run:
 
 ```bash
+cd mayaverse
 npm run dev
 ```
 
+You need to setup TURN servers to for video calls. You can setup TURN servers for free in [https://dashboard.metered.ca/dashboard/](Metered).
+Set them up in constants.ts
 Open [http://localhost:3000](http://localhost:3000) in your browser to access the application.
 
 ## Features
