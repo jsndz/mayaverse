@@ -1,14 +1,22 @@
 "use client";
-import { useStreamStore } from "@/store/useStreamStore";
 
-import { Page } from "@/lib/types";
+import { useStreamStore } from "@/store/useStreamStore";
 import { useCallStore } from "@/store/useCallStore";
 import { usePageStore } from "@/store/usePage";
 import { useWebSocketStore } from "@/store/useWebSocketStore";
 import { useRouter } from "next/navigation";
-import { configuration } from "@/constants";
 import { getOrCreateLocalStream } from "@/lib/getOrCreateLocalStream";
-import { useRef } from "react";
+import { configuration } from "@/constants";
+import { Page } from "@/lib/types";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  IconPhoneIncoming,
+  IconPhoneX,
+  IconPhoneCheck,
+} from "@tabler/icons-react";
+
 type RTCSignalMessage = {
   type: "video-answer";
   payload: {
@@ -16,6 +24,7 @@ type RTCSignalMessage = {
   };
   to: string;
 };
+
 const handleIncomingOffer = async (
   offer: RTCSessionDescriptionInit,
   callerId: string,
@@ -24,12 +33,12 @@ const handleIncomingOffer = async (
 ) => {
   const { setSocket, setPeerConn, peerConn } = useWebSocketStore.getState();
   let tracksAdded = false;
-
   const { setLocalStream, setRemoteStream } = useStreamStore.getState();
+
   try {
     const stream = await getOrCreateLocalStream();
-
     setLocalStream(stream);
+
     if (!tracksAdded) {
       stream.getTracks().forEach((track) => {
         peerConn?.addTrack(track, stream);
@@ -44,6 +53,7 @@ const handleIncomingOffer = async (
         setRemoteStream(stream);
       };
     }
+
     await peerConn?.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConn?.createAnswer();
     await peerConn?.setLocalDescription(answer);
@@ -58,55 +68,69 @@ const handleIncomingOffer = async (
 
     socket?.send(JSON.stringify(signalMessage));
   } catch (err) {
-    console.error("Error accessing media devices:", err);
+    console.error("Error handling offer:", err);
   }
 };
 
 export function IncomingCallModal() {
-  const { incomingCall, showModal, clearCall } = useCallStore();
+  const { incomingCall, showModal, clearCall, offer } = useCallStore();
   const { socket } = useWebSocketStore();
-  const router = useRouter();
-  const { page, setPage, setPeerId } = usePageStore();
+  const { setPage, setPeerId } = usePageStore();
+
   if (!showModal || !incomingCall) return null;
 
-  const init = async () => {
-    const rawOfferWrapper = useCallStore.getState().offer;
-    if (!rawOfferWrapper || !rawOfferWrapper.offer) {
+  const acceptCall = async () => {
+    if (!offer?.offer) {
       console.error("No valid offer found");
       return;
     }
 
-    const offer: RTCSessionDescriptionInit = rawOfferWrapper.offer;
-    await handleIncomingOffer(offer, incomingCall.from, socket, configuration);
+    await handleIncomingOffer(
+      offer.offer,
+      incomingCall.from,
+      socket,
+      configuration
+    );
     setPeerId(incomingCall.from);
+    clearCall();
     setPage(Page.members);
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-xl shadow-xl">
-        <p className="text-xl">
-          📞 Incoming video call from {incomingCall.from}
-        </p>
-        <div className="flex gap-4 mt-4">
-          <button
-            onClick={() => {
-              init();
-              clearCall();
-            }}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Accept
-          </button>
+    <Dialog open>
+      <DialogContent className="max-w-sm p-6 text-center bg-background border-border">
+        <div className="flex flex-col items-center gap-4">
+          <Avatar className="h-20 w-20">
+            <AvatarImage src="/avatar.png" />
+            <AvatarFallback>VC</AvatarFallback>
+          </Avatar>
 
-          <button
-            onClick={() => clearCall()}
-            className="bg-red-500 text-white px-4 py-2 rounded"
-          >
-            Decline
-          </button>
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <IconPhoneIncoming className="text-primary" />
+            Incoming Call
+          </h2>
+
+          <p className="text-muted-foreground">
+            {incomingCall.from} is calling you...
+          </p>
+
+          <div className="flex gap-4 mt-4">
+            <Button
+              variant="default"
+              className="bg-green-500 hover:bg-green-600 text-white"
+              onClick={acceptCall}
+            >
+              <IconPhoneCheck className="mr-2 h-4 w-4" />
+              Accept
+            </Button>
+
+            <Button variant="destructive" onClick={clearCall}>
+              <IconPhoneX className="mr-2 h-4 w-4" />
+              Decline
+            </Button>
+          </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

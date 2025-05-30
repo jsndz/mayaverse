@@ -49,25 +49,23 @@ const FloatingDockMobile = ({
   setPage: (page: Page) => void;
 }) => {
   const [open, setOpen] = useState(false);
+
   return (
     <div className={cn("relative block md:hidden", className)}>
       <AnimatePresence>
         {open && (
           <motion.div
             layoutId="nav"
-            className="absolute bottom-full mb-2 inset-x-0 flex flex-col gap-2"
+            className="absolute top-full mt-2 inset-x-0 flex flex-col gap-2"
           >
             {items.map((item, idx) => (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
+                initial={{ opacity: 0, y: -10 }} // animate from above
+                animate={{ opacity: 1, y: 0 }}
                 exit={{
                   opacity: 0,
-                  y: 10,
+                  y: -10,
                   transition: {
                     delay: idx * 0.05,
                   },
@@ -77,8 +75,8 @@ const FloatingDockMobile = ({
                 <button
                   onClick={() => {
                     setPage(item.href);
+                    setOpen(false); // optionally close on select
                   }}
-                  key={item.title}
                   className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center"
                 >
                   <div className="h-4 w-4">{item.icon}</div>
@@ -88,6 +86,7 @@ const FloatingDockMobile = ({
           </motion.div>
         )}
       </AnimatePresence>
+
       <button
         onClick={() => setOpen(!open)}
         className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-800 flex items-center justify-center"
